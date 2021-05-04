@@ -15,6 +15,7 @@ GO
 --              	and will output those to the correct calling procedure.
 --              	REMINDER: the way to call objects is and always has been as such
 --              	DBNAME.SCHEMA.OBJECT, and continues to be so.
+--      			Also, YES I KNOW ABOUT PARSENAME.  I like *my* proc better, thanks!
 -- XXPPQQZZ 		YOU FILL THIS IN WITH YOUR VALUES BEFORE STARTING THEN DELETE THIS LINE OF COMMENT!
 -- Subprocedures: 	1. [Utility].[DD].[fn_DBSchemaObjCheck]
 -- 					2 sp_executesql -- system procedure, dynamic SQL.
