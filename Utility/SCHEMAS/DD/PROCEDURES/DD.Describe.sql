@@ -265,7 +265,8 @@ EXEC sp_executesql @dSQLBuildDescribe
 
  
 		SELECT *
-		FROM ##DESCRIBE; --WE HAVE TO OUTPUT IT. 
+		FROM ##DESCRIBE
+        ORDER BY 2; --WE HAVE TO OUTPUT IT. 
 	END
 
 
