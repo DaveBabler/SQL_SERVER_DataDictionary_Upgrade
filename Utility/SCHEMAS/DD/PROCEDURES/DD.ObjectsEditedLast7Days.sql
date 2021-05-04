@@ -24,7 +24,7 @@ BEGIN TRY
 			DBName NVARCHAR(MAX)
 			, SchemaName NVARCHAR(MAX)
 			, ObjectName NVARCHAR(MAX)
-			, TypeOfObject NVARCHAR(MAX)
+			, DescriptiveObjectType NVARCHAR(MAX)
 			, DateModifed DATETIME
 			)
 
@@ -37,7 +37,7 @@ BEGIN TRY
 	SELECT DB_NAME() AS DBName
 	, SCHEMA_NAME(schema_id) AS SchemaName
 	, so.name AS ObjectName
-	, type_desc AS TypeOfObject
+	, type_desc AS DescriptiveObjectType
 	, modify_date AS DateModified
 FROM sys.all_objects so
 WHERE DATEDIFF(D, modify_date, GETDATE()) < 7'
