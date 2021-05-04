@@ -52,6 +52,7 @@ BEGIN TRY
                                                     , o.name COLLATE Latin1_General_CI_AS AS ObjectName
 													, o.[type] COLLATE Latin1_General_CI_AS AS ObjectType
 													, o.type_desc COLLATE Latin1_General_CI_AS AS DescriptiveObjectType
+																										, Utility.UTL.fn_CountOccurrencesOfString(m.DEFINITION, '  + '''' + @ustrKeyWord +   '''' +  ')
 													, CAST( m.DEFINITION AS NVARCHAR(MAX)) COLLATE Latin1_General_CI_AS AS Definition
 												FROM ' 
 			+ QUOTENAME(@ustrDBName) + '.sys.sql_modules m
@@ -87,6 +88,7 @@ BEGIN TRY
                                                     , o.name COLLATE Latin1_General_CI_AS AS ObjectName
                                                     , o.[type] COLLATE Latin1_General_CI_AS AS ObjectType
                                                     , o.type_desc COLLATE Latin1_General_CI_AS AS DescriptiveObjectType
+													, Utility.UTL.fn_CountOccurrencesOfString(m.DEFINITION, ' +  '''' + @ustrKeyWord +   '''' + ustrKeyWord + ')
                                                     , CAST( m.DEFINITION AS NVARCHAR(MAX)) COLLATE Latin1_General_CI_AS AS Definition
                                                 FROM ' 
 			+ QUOTENAME(@ustrDBName) + '.sys.sql_modules m
