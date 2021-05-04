@@ -20,6 +20,8 @@ GO
 -- Create date: 2021-05-02
 -- Description:	This finds code across database based upon a keyword. 
 --              It outputs it to a global temp table for further study.
+-- To Do: 		1. Find a better way of dealing with looping through the databases. 
+-- 				2. Dump to temp table for further sorting, current tries failed.		
 -- ==========================================================================================
 CREATE
 	OR
@@ -32,11 +34,19 @@ AS
 BEGIN TRY
 	SET XACT_ABORT ON;-- 
 	SET NOCOUNT ON;
-
-	DROP TABLE
-
-	IF EXISTS ##FindKeyTextAcrossDatabases
+		DROP TABLE	IF EXISTS #FindKeyTextAcrossDatabases
+		DROP TABLE	IF EXISTS ##FindKeyTextAcrossDatabases
+	
 		CREATE TABLE ##FindKeyTextAcrossDatabases (
+			DBName NVARCHAR(64)
+			, SchemaName NVARCHAR(64)
+			, ObjectName NVARCHAR(64)
+			, ObjectType NVARCHAR(64)
+			, DescriptiveObjectType NVARCHAR(64)
+			, SourceCode NVARCHAR(MAX)
+			);
+
+		CREATE TABLE #__FindKeyTextAcrossDatabases (
 			DBName NVARCHAR(64)
 			, SchemaName NVARCHAR(64)
 			, ObjectName NVARCHAR(64)
@@ -67,24 +77,39 @@ BEGIN TRY
         IF ''?'' <> ''master'' AND ''?'' <> ''model'' AND ''?'' <> ''msdb'' AND ''?'' <> ''tempdb''
             BEGIN 
             USE [?]
-
+			PRINT ' + '''' + @ustrKeyWord + '''' +'
             
         EXEC Utility.DD.FindKeyWordInCode [?], ' 
 			+ '''' + @ustrKeyWord + '''' + ' END ';
 	END
 
-	INSERT INTO ##FindKeyTextAcrossDatabases (
-		DBName
-		, SchemaName
-		, ObjectName
-		, ObjectType
-		, DescriptiveObjectType
-		, SourceCode
-		)
+	--INSERT INTO #__FindKeyTextAcrossDatabases (
+	--	DBName
+	--	, SchemaName
+	--	, ObjectName
+	--	, ObjectType
+	--	, DescriptiveObjectType
+	--	, SourceCode
+	--	)
 	EXEC sp_MSforeachdb @dSQLStatement
+--INSERT INTO ##FindKeyTextAcrossDatabases(
+--DBName
+--		, SchemaName
+--		, ObjectName 
+--		, ObjectType
+--		, DescriptiveObjectType
+--		, SourceCode
+--)
+	--SELECT 		DBName
+	--	, SchemaName
+	--	, ObjectName 
+	--	, ObjectType
+	--	, DescriptiveObjectType
+	--	, SourceCode
+	--FROM #__FindKeyTextAcrossDatabases
 
-	SELECT *
-	FROM ##FindKeyTextAcrossDatabases
+	--select *
+	--from ##FindKeyTextAcrossDatabases
 
 	SET XACT_ABORT OFF;-- 
 END TRY

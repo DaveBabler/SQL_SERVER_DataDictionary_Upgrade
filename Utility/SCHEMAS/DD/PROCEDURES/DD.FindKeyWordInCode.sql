@@ -1,4 +1,7 @@
-USE [Utility]
+		--, (DATALENGTH(@ustrKeyWord) - (DATALENGTH(REPLACE(lower(@ustrKeyWord), lower(SourceCode), ''))/DATALENGTH(@ustrKeyWord))) AS 'APPROXcOUNT'
+
+
+		USE [Utility]
 GO
 
 /****** Object:  StoredProcedure [DD].[FindKeyWordInCode]    Script Date: 5/4/2021 8:12:44 AM ******/
@@ -23,6 +26,7 @@ ALTER PROCEDURE [DD].[FindKeyWordInCode]
 	, @dlistTypeOfCodeToSearch VARCHAR(40) = NULL
 AS
 BEGIN TRY
+	SET XACT_ABORT ON;
 	SET NOCOUNT ON;
 
 	DECLARE @charComma CHAR(1) = ',' -- I did not want to deal with yet another escape sequence 
@@ -31,6 +35,7 @@ BEGIN TRY
 		, @sqlSearchFinal NVARCHAR(MAX) = NULL;
 
 	SET @strKeyWordPrepared = '%' + lower(@ustrKeyWord) + '%';
+	PRINT @strKeyWordPrepared
 		--gotta add those % sinces for dynamic sql LIKE statments outside of the statement
 
 	IF @ustrDBName IS NULL
@@ -42,34 +47,32 @@ BEGIN TRY
 		/**We join the table valued function to the DD to get the types of functions we want -- Babler */
 		SET @sqlSearchFinal = N'
 								   SELECT DISTINCT ' + '''' + QUOTENAME(@ustrDBName) + '''' + 
-			' AS DBName
-                                                    , SCHEMA_NAME(schema_id) AS SchemaName
-                                                    , o.name
-													, o.[type]
-													, o.type_desc
-													, m.DEFINITION
+			' COLLATE Latin1_General_CI_AS AS DBName
+                                                    , SCHEMA_NAME(schema_id) COLLATE Latin1_General_CI_AS AS SchemaName 
+                                                    , o.name COLLATE Latin1_General_CI_AS AS ObjectName
+													, o.[type] COLLATE Latin1_General_CI_AS AS ObjectType
+													, o.type_desc COLLATE Latin1_General_CI_AS AS DescriptiveObjectType
+													, CAST( m.DEFINITION AS NVARCHAR(MAX)) COLLATE Latin1_General_CI_AS AS Definition
 												FROM ' 
 			+ QUOTENAME(@ustrDBName) + '.sys.sql_modules m
 												INNER JOIN  ' + QUOTENAME(@ustrDBName) + 
-			'.sys.all_objects o
+			'.sys.objects o
 													ON m.object_id = o.object_id
 												INNER JOIN Utility.UTL.fn_DelimListToTable(@dlistTypeOfCodeToSearch_ph, @charComma_ph) AS Q
-													ON o.[type] = Q.StringValue COLLATE Latin1_General_CI_AS_KS_WS
-												WHERE lower(m.DEFINITION) LIKE @strKeyWord_ph
-												ORDER BY o.[type] '
+													ON o.[type] = Q.StringValue COLLATE Latin1_General_CI_AS
+												WHERE lower(m.DEFINITION) LIKE ' + '''' + @strKeyWordPrepared + '''' + '
+												ORDER BY o.[type]  COLLATE Latin1_General_CI_AS '
 			;
 
 		PRINT @sqlSearchFinal;
 
 		SET @TSQLParameterDefinitions = 
-			N'@strKeyWord_ph NVARCHAR(MAX)
-												, @dlistTypeOfCodeToSearch_ph NVARCHAR(24)
+			N' @dlistTypeOfCodeToSearch_ph NVARCHAR(24)
 												, @charComma_ph CHAR(1)'
 			;
 
 		EXEC sp_executesql @sqlSearchFinal
 			, @TSQLParameterDefinitions
-			, @strKeyWord_ph = @strKeyWordPrepared
 			, @dlistTypeOfCodeToSearch_ph = @dlistTypeOfCodeToSearch
 			, @charComma_ph = @charComma;
 	END
@@ -79,34 +82,53 @@ BEGIN TRY
 
                                                     SELECT DISTINCT ' + '''' + QUOTENAME(
 				@ustrDBName) + '''' + 
-			' AS DBName
-                                                    , SCHEMA_NAME(schema_id) AS SchemaName
-                                                    , o.name
-                                                    , o.[type]
-                                                    , o.type_desc
-                                                    , m.DEFINITION
+			' COLLATE Latin1_General_CI_AS AS DBName
+                                                    , SCHEMA_NAME(schema_id) COLLATE Latin1_General_CI_AS AS SchemaName
+                                                    , o.name COLLATE Latin1_General_CI_AS AS ObjectName
+                                                    , o.[type] COLLATE Latin1_General_CI_AS AS ObjectType
+                                                    , o.type_desc COLLATE Latin1_General_CI_AS AS DescriptiveObjectType
+                                                    , CAST( m.DEFINITION AS NVARCHAR(MAX)) COLLATE Latin1_General_CI_AS AS Definition
                                                 FROM ' 
 			+ QUOTENAME(@ustrDBName) + '.sys.sql_modules m
                                                INNER JOIN ' + 
 			QUOTENAME(@ustrDBName) + 
-			'.sys.all_objects o
+			'.sys.objects o
                                                 ON m.object_id = o.object_id
-                                            WHERE m.DEFINITION LIKE @strKeyWord_ph
-                                            ORDER BY o.[type]
+                                            WHERE m.DEFINITION LIKE ' + '''' + @strKeyWordPrepared + '''' + '
+                                            ORDER BY o.[type]  COLLATE Latin1_General_CI_AS
                                             '
 			;
 
 		PRINT @sqlSearchFinal;
 
-		SET @TSQLParameterDefinitions = N'@strKeyWord_ph NVARCHAR(MAX)';
 
 		EXEC sp_executesql @sqlSearchFinal
-			, @TSQLParameterDefinitions
-			, @strKeyWord_ph = @strKeyWordPrepared;
+
 	END
+	SET XACT_ABORT OFF;
 END TRY
 
 BEGIN CATCH
+	IF (XACT_STATE()) = - 1 --test to see if we cannot commit
+	BEGIN
+		PRINT N'The transaction is in an uncommittable state.' + 'Rolling back transaction. INSIDE KeywordinCode'
+
+
+
+		SET XACT_ABORT OFF;
+			-- currently our database has this as default so we need to double check it turns off on fail or success
+	END;
+
+	IF (XACT_STATE()) = 1 -- Test if the transaction is committable.  
+	BEGIN
+		PRINT N'The transaction is committable.' + 'Committing transaction.'
+
+
+
+		SET XACT_ABORT OFF;
+			-- currently our database has this as default so we need to triple check it turns off on fail or success
+	END;
+
 	INSERT INTO CustomLog.ERR.DB_EXCEPTION_TANK (
 		[DatabaseName]
 		, [UserName]
@@ -129,33 +151,22 @@ BEGIN CATCH
 		, ERROR_MESSAGE()
 		, GETDATE()
 		);
+END CATCH;
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--TESTING BLOCK--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	/*
+		USE [Utility]
+		GO
 
-	PRINT 
-		'Please check the DB_EXCEPTION_TANK an error has been raised. 
-		The query between the lines below will likely get you what you need.
+		DECLARE	@return_value int
 
-		_____________________________
+		EXEC	@return_value = [DD].[FindKeyWordInCode]
+				@ustrDBName = NULL,
+				@ustrKeyWord = N'FOreAch',
+				@dlistTypeOfCodeToSearch = NULL
 
+		SELECT	'Return Value' = @return_value
 
-		WITH mxe
-		AS (
-			SELECT MAX(ErrorID) AS MaxError
-			FROM CustomLog.ERR.DB_EXCEPTION_TANK
-			)
-		SELECT ErrorID
-			, DatabaseName
-			, UserName
-			, ErrorNumber
-			, ErrorState
-			, ErrorLine
-			, ErrorProcedure
-			, ErrorMessage
-			, ErrorDateTime
-		FROM CustomLog.ERR.DB_EXCEPTION_TANK et
-		INNER JOIN mxe
-			ON et.ErrorID = mxe.MaxError
+		GO
 
-		_____________________________
-'
-		;
-END CATCH
+	*/
+--vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
