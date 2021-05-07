@@ -39,8 +39,8 @@ BEGIN TRY
 	DECLARE @bitDatabaseExists BIT = 0;
 	DECLARE @bitSchemaExists BIT = 0;
 	DECLARE @intNumPiecesEntered INT = 0;
-	DECLARE @ustrDefaultSchema NVARCHAR(64) = 'dbo';--WE WOULD FILL THIS IN.
-	DECLARE @ustrDefaultDatabase NVARCHAR(64) = 'mapbenefits';
+	DECLARE @ustrDefaultSchema NVARCHAR(64) = 'XXPPQQZZ';--WE WOULD FILL THIS IN.
+	DECLARE @ustrDefaultDatabase NVARCHAR(64) = 'XXPPQQZZ';
 	DECLARE @intDesiredPiece INT;
 	DECLARE @ustrSQLToExecute NVARCHAR(4000);-- highly unlikely it would be longer in this proc.
 	DECLARE @uDynamSQLParams NVARCHAR(2000) = N'@intDesiredPiece_ph INT, @ustrObjectFromTemp_ph NVARCHAR(64) OUTPUT';
