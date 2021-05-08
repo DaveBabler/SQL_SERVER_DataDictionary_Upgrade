@@ -81,7 +81,7 @@ SET NOCOUNT ON;
                     N'WITH fkeys
                     AS (
                         SELECT col.name AS NameofFKColumn
-                            , schema_name(pk_tab.schema_id) + ''.'' + pk_tab.name AS ReferencedTable
+                            , ist.TABLE_SCHEMA + ''.'' + pk_tab.name AS ReferencedTable
                             , pk_col.name AS PrimaryKeyColumnName
                             , delete_referential_action_desc AS ReferentialDeleteAction
                             , update_referential_action_desc AS ReferentialUpdateAction
@@ -97,10 +97,13 @@ SET NOCOUNT ON;
                             ON pk_tab.object_id = fk_cols.referenced_object_id
                         LEFT JOIN ' + @ustrDatabaseName + '.sys.columns pk_col
                             ON pk_col.column_id = fk_cols.referenced_column_id
-                            AND pk_col.column_id = fk_cols.referenced_object_id
+                            AND pk_col.object_id = fk_cols.referenced_object_id
+                        LEFT JOIN ' + @ustrDatabaseName +'.INFORMATION_SCHEMA.TABLES ist
+                                ON ist.TABLE_NAME = tab.name
                         WHERE fk.name IS NOT NULL
                             AND tab.name = @ustrTableName_d
-                            AND pk_tab.schema_id = SCHEMA_ID(@ustrSchemaName_d)
+                            AND ist.TABLE_SCHEMA = @ustrSchemaName_d
+                            
                         )
                         , pk
                     AS (
@@ -180,9 +183,7 @@ SET NOCOUNT ON;
                         , COLUMNPROPERTY(OBJECT_ID('' ['' + col.TABLE_SCHEMA + ''].['' + col.TABLE_NAME + ''] ''), col.COLUMN_NAME, '' IsIdentity 
                             '') AS IsIdentity
                         , CAST(ISNULL(pk.is_primary_key, 0) AS BIT) AS IsPrimaryKey
-                        , '' FK
-
-                    of: '' + fkeys.ReferencedTable + ''.'' + fkeys.PrimaryKeyColumnName AS ReferencedTablePrimaryKey
+                        , '' FK of: '' + fkeys.ReferencedTable + ''.'' + fkeys.PrimaryKeyColumnName AS ReferencedTablePrimaryKey
                         , col.COLLATION_NAME AS CollationName
                         , s.value AS Description
                         , indexList.IndexesRowIsInvolvedIn
@@ -227,7 +228,7 @@ SET NOCOUNT ON;
 
 '
 	;
-
+PRINT CAST(@dSQLBuildDescribe AS NTEXT); 
 
 	-- FOR OUTPUTTING AND DEBUGGING THE DYNAMIC SQL 👇
 
@@ -265,7 +266,8 @@ EXEC sp_executesql @dSQLBuildDescribe
 
  
 		SELECT *
-		FROM ##DESCRIBE; --WE HAVE TO OUTPUT IT. 
+		FROM ##DESCRIBE
+        ORDER BY 2; --WE HAVE TO OUTPUT IT. 
 	END
 
 

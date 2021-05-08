@@ -16,4 +16,4 @@ WHERE qt.[dbid] NOT IN (1, 2, 3, 4)
 	AND OBJECT_NAME(qt.objectid) NOT LIKE '%sqlagent%'
 ORDER BY qs.execution_count DESC
 OPTION (RECOMPILE);
---to do, put in sp_foreach 
+--to do, put in sp_foreach 	
