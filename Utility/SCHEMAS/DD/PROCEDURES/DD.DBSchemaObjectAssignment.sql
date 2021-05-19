@@ -125,7 +125,6 @@ BEGIN TRY
 		SET @ustrSchemaName = @ustrDefaultSchema;
 		SET @ustrDatabaseName = @ustrDefaultDatabase;
 		SET @ustObjectOrTableName = @strQualifiedObjectBeingCalled;
-			--check info schema to make sure the schmea and the db actually exist.
 	END
 
 	SET NOCOUNT OFF;
