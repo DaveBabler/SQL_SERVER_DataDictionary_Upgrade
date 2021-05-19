@@ -173,8 +173,8 @@ SET NOCOUNT ON;
                         , col.NUMERIC_SCALE AS NumericScale
                         , col.DATETIME_PRECISION AS DatePrecision
                         , col.COLUMN_DEFAULT AS DefaultSetting
-                        , CAST(CASE col.IS_NULLABLE
-                                WHEN '' NO ''
+                        , CAST(CASE lower(col.IS_NULLABLE)
+                                WHEN ''no''
                                     THEN 0
                                 ELSE 1
                                 END AS BIT) AS IsNullable
