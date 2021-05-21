@@ -153,8 +153,7 @@ SET NOCOUNT ON;
                             , i2.ColumnName
                             , (
                                 SELECT SUBSTRING((
-                                            SELECT ''
-                                                , '' + IndexName
+                                            SELECT '', '' + IndexName
                                             FROM indStart i1
                                             WHERE i1.ColumnName = i2.ColumnName
                                             FOR XML PATH('''')
