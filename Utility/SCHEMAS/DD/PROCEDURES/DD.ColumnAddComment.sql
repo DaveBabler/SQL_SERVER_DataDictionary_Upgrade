@@ -13,7 +13,7 @@ GO
 CREATE
 	OR
 
-ALTER PROCEDURE [DD].[AddColumnComment]
+ALTER PROCEDURE [DD].[ColumnAddComment]
 	-- Add the parameters for the stored procedure here
 	@ustrFQON NVARCHAR(64)
 	, @strColumnName NVARCHAR(64)
@@ -35,7 +35,7 @@ DECLARE @vrtComment SQL_VARIANT
 	, @bitIsThisAView BIT
 	, @ustrViewOrTable NVARCHAR(8)
 	;
-DROP TABLE IF EXISTS #__SuppressOutputAddColumnComment;
+DROP TABLE IF EXISTS #__SuppressOutputColumnAddComment;
 
 DECLARE @boolCatchFlag BIT = 0;  -- for catching and throwing a specific error. 
 	--set and internally cast the VARIANT, I know it's dumb, but it's what we have to do.
@@ -49,7 +49,7 @@ DECLARE @ustrVariantConv NVARCHAR(MAX) = REPLACE(CAST(@vrtComment AS NVARCHAR(MA
  */
 
 
-	CREATE TABLE #__SuppressOutputAddColumnComment (
+	CREATE TABLE #__SuppressOutputColumnAddComment (
 		SuppressedOutput VARCHAR(MAX)
 	);
 BEGIN TRY
@@ -141,7 +141,7 @@ BEGIN TRY
 											  	+ @ustrTableorObjName
 											  	+ ''''
 												+								' )   )';
-			INSERT INTO #__SuppressOutputAddColumnComment
+			INSERT INTO #__SuppressOutputColumnAddComment
 			EXEC sp_executesql @dSQLNotExistCheckProperties;
 
 			SET @intRowCount = @@ROWCOUNT;
@@ -217,7 +217,7 @@ BEGIN TRY
 	END 
 
 		EXEC sp_executesql @dSQLApplyComment;
-		DROP TABLE IF EXISTS #__SuppressOutputAddColumnComment;
+		DROP TABLE IF EXISTS #__SuppressOutputColumnAddComment;
 	SET NOCOUNT OFF
 END TRY
 
@@ -352,7 +352,7 @@ END CATCH
 	DECLARE @strColName VARCHAR(64) = '';
 	DECLARE @ustrComment NVARCHAR(400) = N'';
 
-	EXEC Utility.DD.AddColumnComment @ustrFullyQualifiedTable
+	EXEC Utility.DD.ColumnAddComment @ustrFullyQualifiedTable
 		, @strColName
 		, @ustrComment; 
 

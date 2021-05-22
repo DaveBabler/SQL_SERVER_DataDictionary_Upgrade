@@ -134,7 +134,7 @@ EXEC [Utility].[DD].[ColumnExist] @ustrTableOrObjName
             ELSE
             BEGIN
                 SET @ustrMessageOut = @ustrFQON + ' ' + @ustrColumnName + 
-                    N' currently has no comments please use Utility.DD.AddColumnComment to add a comment!';
+                    N' currently has no comments please use Utility.DD.ColumnAddComment to add a comment!';
             END
 
             SELECT @ustrColumnName AS 'ColumnName'
