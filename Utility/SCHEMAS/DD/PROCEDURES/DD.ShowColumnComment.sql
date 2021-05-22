@@ -1,7 +1,12 @@
+USE Utility
+GO 
+
 SET ANSI_NULLS ON
 GO
+
 SET QUOTED_IDENTIFIER ON
 GO
+
 -- ==========================================================================================
 -- Author:			Dave Babler
 -- Create date: 	2020-08-25
@@ -13,141 +18,131 @@ GO
 -- 					3. [Utility].[DD].[ColumnExist]
 --  				4. [Utility].[DD].[fn_IsThisTheNameOfAView]
 -- ==========================================================================================
-CREATE or alter  PROCEDURE [DD].[ShowColumnComment] 
+CREATE
+	OR
+
+ALTER PROCEDURE [DD].[ColumnShowComment]
 	-- Add the parameters for the stored procedure here
 	@ustrFQON NVARCHAR(64)
 	, @ustrColumnName NVARCHAR(64)
 AS
-
-
 DECLARE @ustrMessageOut NVARCHAR(320)
-, @ustrDatabaseName NVARCHAR(64) 
-, @ustrSchemaName NVARCHAR(64)
-, @ustrTableOrObjName  NVARCHAR(64)
-, @intRowCount INT
-, @boolExistFlag BIT
-, @dSQLCheckForComment NVARCHAR(MAX)
-, @dSQLPullComment NVARCHAR(MAX)
-, @dSQLPullCommentParameters NVARCHAR(MAX); 
+	, @ustrDatabaseName NVARCHAR(64)
+	, @ustrSchemaName NVARCHAR(64)
+	, @ustrTableOrObjName NVARCHAR(64)
+	, @intRowCount INT
+	, @boolExistFlag BIT
+	, @dSQLCheckForComment NVARCHAR(MAX)
+	, @dSQLPullComment NVARCHAR(MAX)
+	, @dSQLPullCommentParameters NVARCHAR(MAX);
+
 DROP TABLE IF EXISTS #__SuppressOutputColumnComment
-CREATE TABLE #__SuppressOutputColumnComment(
-	SuppressedOutput VARCHAR(MAX)
-)
+	CREATE TABLE #__SuppressOutputColumnComment (SuppressedOutput VARCHAR(MAX))
+
 BEGIN TRY
-EXEC [Utility].[DD].[DBSchemaObjectAssignment] @ustrFQON
-	, @ustrDatabaseName OUTPUT
-	, @ustrSchemaName OUTPUT
-	, @ustrTableOrObjName OUTPUT;
+	EXEC [Utility].[DD].[DBSchemaObjectAssignment] @ustrFQON
+		, @ustrDatabaseName OUTPUT
+		, @ustrSchemaName OUTPUT
+		, @ustrTableOrObjName OUTPUT;
 
-EXEC [Utility].[DD].[ColumnExist] @ustrTableOrObjName
-	, @ustrColumnName
-	, @ustrDatabaseName
-	, @ustrSchemaName
-	, @boolExistFlag OUTPUT
-	, @ustrMessageOut OUTPUT;
+	EXEC [Utility].[DD].[ColumnExist] @ustrTableOrObjName
+		, @ustrColumnName
+		, @ustrDatabaseName
+		, @ustrSchemaName
+		, @boolExistFlag OUTPUT
+		, @ustrMessageOut OUTPUT;
 
-    IF @boolExistFlag = 1
-       BEGIN 
-    
-                /**Check to see if the column has the extened properties on it.
+	IF @boolExistFlag = 1
+	BEGIN
+		/**Check to see if the column has the extened properties on it.
                  *If it does not  will ultimately ask someone to please create 
                  * the comment on the column -- Babler */
-                SET @intRowCount = 0;
-                SET @dSQLCheckForComment = N'
+		SET @intRowCount = 0;
+		SET @dSQLCheckForComment = N'
                     SELECT 1
-                    FROM ' + QUOTENAME(@ustrDatabaseName) + '.sys.extended_properties
-                    WHERE [major_id] = OBJECT_ID('  
-                    	                      + ''''
-											  + @ustrDatabaseName
-											  + '.'
-											  + @ustrSchemaName
-											  + '.'
-											  + @ustrTableOrObjName
-											  + ''''
-                                         + ')
+                    FROM ' + QUOTENAME(@ustrDatabaseName
+			) + '.sys.extended_properties
+                    WHERE [major_id] = OBJECT_ID(' + '''' + @ustrDatabaseName + '.' + 
+			@ustrSchemaName + '.' + @ustrTableOrObjName + '''' + 
+			')
                         AND [name] = N''MS_Description''
                         AND [minor_id] = (
                             SELECT [column_id]
-                            FROM ' + QUOTENAME(@ustrDatabaseName) + '.sys.columns
-                            WHERE [name] = ' 
-                            + ''''
-                            + @ustrColumnName 
-                            + ''''
-                            +'
-                                AND [object_id] = OBJECT_ID('  
-                    	                      + ''''
-											  + @ustrDatabaseName
-											  + '.'
-											  + @ustrSchemaName
-											  + '.'
-											  + @ustrTableOrObjName
-											  + ''''
-                                         + ')
+                            FROM ' 
+			+ QUOTENAME(@ustrDatabaseName) + '.sys.columns
+                            WHERE [name] = ' + '''' + 
+			@ustrColumnName + '''' + '
+                                AND [object_id] = OBJECT_ID(' + '''' + @ustrDatabaseName 
+			+ '.' + @ustrSchemaName + '.' + @ustrTableOrObjName + '''' + ')
                             )
                     ';
-                                    PRINT @intRowCount
-                PRINT @dSQLCheckForComment
-                INSERT INTO #__SuppressOutputColumnComment
-                EXEC sp_executesql @dSQLCheckForComment;
-                
-                SET @intRowCount = @@ROWCOUNT
-                PRINT @intRowCount;
-        IF @intRowCount = 1
-            BEGIN
-            SET @dSQLPullComment = N'
+
+		PRINT @intRowCount
+		PRINT @dSQLCheckForComment
+
+		INSERT INTO #__SuppressOutputColumnComment
+		EXEC sp_executesql @dSQLCheckForComment;
+
+		SET @intRowCount = @@ROWCOUNT
+
+		PRINT @intRowCount;
+
+		IF @intRowCount = 1
+		BEGIN
+			SET @dSQLPullComment = 
+				N'
                 SELECT TOP 1 @ustrMessageOutTemp = CAST(ep.value AS  NVARCHAR(320))
-                FROM '
-                + QUOTENAME(@ustrDataBaseName)
-                + '.sys.extended_properties AS ep
-                INNER JOIN '
-                + QUOTENAME(@ustrDataBaseName)
-                + '.sys.all_objects AS ob
+                FROM ' 
+				+ QUOTENAME(@ustrDataBaseName) + '.sys.extended_properties AS ep
+                INNER JOIN ' + QUOTENAME(
+					@ustrDataBaseName) + 
+				'.sys.all_objects AS ob
                     ON ep.major_id = ob.object_id
-                INNER JOIN '
-                + QUOTENAME(@ustrDataBaseName)
-                +'.sys.tables AS st
+                INNER JOIN ' 
+				+ QUOTENAME(@ustrDataBaseName) + 
+				'.sys.tables AS st
                     ON ob.object_id = st.object_id
-                INNER JOIN '
-                + QUOTENAME(@ustrDataBaseName)
-                +'.sys.columns AS c	
+                INNER JOIN ' + 
+				QUOTENAME(@ustrDataBaseName) + 
+				'.sys.columns AS c	
                     ON ep.major_id = c.object_id
                         AND ep.minor_id = c.column_id
                 WHERE st.name = @ustrTableOrObjName
-                    AND c.name = @ustrColumnName';
-                SET @dSQLPullCommentParameters = 
-                    N' @ustrColumnName NVARCHAR(64)
+                    AND c.name = @ustrColumnName'
+				;
+			SET @dSQLPullCommentParameters = 
+				N' @ustrColumnName NVARCHAR(64)
                                 , @ustrTableOrObjName NVARCHAR(64)
                                 , @ustrMessageOutTemp NVARCHAR(320) OUTPUT'
-                    ;
+				;
 
-                EXECUTE sp_executesql @dSQLPullComment
-                , N'@ustrColumnName NVARCHAR(64)
+			EXECUTE sp_executesql @dSQLPullComment
+				, 
+				N'@ustrColumnName NVARCHAR(64)
                             , @ustrTableOrObjName NVARCHAR(64)
                             , @ustrMessageOutTemp NVARCHAR(320) OUTPUT'
-                , @ustrColumnName = @ustrColumnName
-                , @ustrTableOrObjName = @ustrTableOrObjName
-                , @ustrMessageOutTemp = @ustrMessageOut OUTPUT;
+				, @ustrColumnName = @ustrColumnName
+				, @ustrTableOrObjName = @ustrTableOrObjName
+				, @ustrMessageOutTemp = @ustrMessageOut OUTPUT;
 
+			PRINT @ustrMessageOut
+		END
+		ELSE
+		BEGIN
+			SET @ustrMessageOut = @ustrFQON + ' ' + @ustrColumnName + 
+				N' currently has no comments please use Utility.DD.ColumnAddComment to add a comment!';
+		END
 
-                    PRINT @ustrMessageOut
-            END
-            ELSE
-            BEGIN
-                SET @ustrMessageOut = @ustrFQON + ' ' + @ustrColumnName + 
-                    N' currently has no comments please use Utility.DD.ColumnAddComment to add a comment!';
-            END
+		SELECT @ustrColumnName AS 'ColumnName'
+			, @ustrMessageOut AS 'ColumnComment';
+	END
+	ELSE
+	BEGIN
+		SET @ustrMessageOut = 'Either the column you typed in: ' + @ustrColumnName + ' or, ' + ' the table you typed in: ' + 
+			@ustrFQON + ' ' + 'is invalid, check spelling, try again? ';
 
-            SELECT @ustrColumnName AS 'ColumnName'
-                , @ustrMessageOut AS 'ColumnComment';
-        END
-    ELSE 
-        BEGIN
-         SET @ustrMessageOut = 'Either the column you typed in: ' + @ustrColumnName + ' or, '
-                            + ' the table you typed in: ' + @ustrFQON + ' '
-                            + 'is invalid, check spelling, try again? ';
-         SELECT @ustrMessageOut AS 'NON_LOGGED_ERROR_MESSAGE'
-        END
-
+		SELECT @ustrMessageOut AS 'NON_LOGGED_ERROR_MESSAGE'
+	END
 END TRY
 
 BEGIN CATCH
@@ -174,9 +169,8 @@ BEGIN CATCH
 		, GETDATE()
 		);
 
-        
-PRINT 
-	'Please check the DB_EXCEPTION_TANK an error has been raised. 
+	PRINT 
+		'Please check the DB_EXCEPTION_TANK an error has been raised. 
 		The query between the lines below will likely get you what you need.
 
 		_____________________________
@@ -201,14 +195,15 @@ PRINT
 			ON et.ErrorID = mxe.MaxError
 
 		_____________________________
-';
+'
+		;
 END CATCH
 	--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^TESTING BLOCK^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	/* 
 
             DECLARE	@return_value int
 
-            EXEC	@return_value = Utility.[DD].[ShowColumnComment]
+            EXEC	@return_value = Utility.[DD].[ColumnShowComment]
                     @ustrFQON = N'Galactic.dbo.WorkDone',
                     @ustrColumnName = N'Description'
 
@@ -218,11 +213,8 @@ END CATCH
 
 */
 	--vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-
---~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DYNAMIC SQL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-/* 
+	--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DYNAMIC SQL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/* 
 SELECT NULL
 FROM SYS.EXTENDED_PROPERTIES
 WHERE [major_id] = OBJECT_ID(@ustrFQON)
@@ -247,7 +239,7 @@ WHERE st.name = @ustrFQON
 	AND c.name = @ustrColumnName
    
   */
-
---~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                 
-
+	--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                 
 GO
+
+

@@ -1638,7 +1638,7 @@ GO
 -- 					3. [Utility].[DD].[ColumnExist]
 --  				4. [Utility].[DD].[fn_IsThisTheNameOfAView]
 -- ==========================================================================================
-CREATE OR ALTER  PROCEDURE [DD].[ShowColumnComment] 
+CREATE OR ALTER  PROCEDURE [DD].[ColumnShowComment] 
 	-- Add the parameters for the stored procedure here
 	@ustrFQON NVARCHAR(64)
 	, @ustrColumnName NVARCHAR(64)
@@ -1833,7 +1833,7 @@ END CATCH
 
             DECLARE	@return_value int
 
-            EXEC	@return_value = Utility.[DD].[ShowColumnComment]
+            EXEC	@return_value = Utility.[DD].[ColumnShowComment]
                     @ustrFQON = N'Galactic.dbo.WorkDone',
                     @ustrColumnName = N'Description'
 
