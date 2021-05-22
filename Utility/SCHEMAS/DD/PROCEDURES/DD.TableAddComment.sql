@@ -11,7 +11,7 @@ GO
 --					3.	[Utility].[DD].[fn_IsThisTheNameOfAView]
 -- TODO: 			Upon update add the old value to some sort of LogTable, along with the user doing it.
 -- ==========================================================================================
-CREATE OR ALTER PROCEDURE DD.AddTableComment
+CREATE OR ALTER PROCEDURE DD.TableAddComment
 	-- Add the parameters for the stored procedure here
 	@ustrFQON NVARCHAR(200)
 	, @strComment NVARCHAR(360)
@@ -33,7 +33,7 @@ DECLARE @vrtComment SQL_VARIANT
 	, @ustrViewOrTable NVARCHAR(8)
 	;
 
-DROP TABLE IF EXISTS #__SuppressOutputAddTableComment; 
+DROP TABLE IF EXISTS #__SuppressOutputTableAddComment; 
 
 DECLARE @boolCatchFlag BIT = 0;  -- for catching and throwing a specific error. 
 	--set and internally cast the VARIANT, I know it's dumb, but it's what we have to do.
@@ -46,22 +46,22 @@ DECLARE @ustrVariantConv NVARCHAR(MAX) = REPLACE(CAST(@vrtComment AS NVARCHAR(MA
  *	2.	We need to deal with quotes passed in for Contractions such as "can't" which would be passed in as "can''t"
  */
 
-DROP TABLE IF EXISTS #__SuppressOutputAddTableComment;
-CREATE TABLE #__SuppressOutputAddTableComment (
+DROP TABLE IF EXISTS #__SuppressOutputTableAddComment;
+CREATE TABLE #__SuppressOutputTableAddComment (
 	SuppressedOutput VARCHAR(MAX)
 );
 
 BEGIN TRY
 	SET NOCOUNT ON;
 	--break apart the fully qualified object name
-	INSERT INTO #__SuppressOutputAddTableComment
+	INSERT INTO #__SuppressOutputTableAddComment
 	EXEC [Utility].[DD].[DBSchemaObjectAssignment] @ustrFQON
 												, @ustrDatabaseName OUTPUT
 												, @ustrSchemaName OUTPUT
 												, @ustrTableOrObjName OUTPUT;
 
 
-	INSERT INTO #__SuppressOutputAddTableComment
+	INSERT INTO #__SuppressOutputTableAddComment
 	VALUES(NULL);
 
 
@@ -114,7 +114,7 @@ ELSE
 											  +	' AND [name] = N''MS_Description''
 													AND [minor_id] = 0';
 
-		INSERT INTO #__SuppressOutputAddTableComment
+		INSERT INTO #__SuppressOutputTableAddComment
 		EXEC sp_executesql @dSQLNotExistCheckProperties;
 
 		SET @intRowCount = @@ROWCOUNT;
@@ -174,10 +174,10 @@ ELSE
 										+ '''';
 
 			END
-				INSERT INTO #__SuppressOutputAddTableComment
+				INSERT INTO #__SuppressOutputTableAddComment
 				EXEC sp_executesql @dSQLApplyComment;
 
-	DROP TABLE IF EXISTS #__SuppressOutputAddTableComment;
+	DROP TABLE IF EXISTS #__SuppressOutputTableAddComment;
 	SET NOCOUNT OFF
 END TRY
 
@@ -263,7 +263,19 @@ BEGIN CATCH
 		_____________________________
 
 '
-END CATCH;
+
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^TESTING BLOCK^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	/* 
+	DECLARE @ustrFullyQualifiedTable NVARCHAR(64) = N'';
+	DECLARE @ustrComment NVARCHAR(400) = N'';
+
+	EXEC Utility.DD.TableAddComment @ustrFullyQualifiedTable
+		, @ustrComment; 
+	
+*/
+
+
+ --dddddddddddddddddddddddddddddddddddddddddddd--DynamicSQLAsRegularBlock--dddddddddddddddddddddddddddddddddddddddddddddd
 	/*Dynamic Queries
 		-- properties if not exists
 
@@ -293,21 +305,17 @@ END CATCH;
 		          , @level1name = @ustrFQON;
             
 		*/
+ --DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+
 
 	--Bibliography
 	--   https://stackoverflow.com/questions/20757804/execute-stored-procedure-from-stored-procedure-w-dynamic-sql-capturing-output 
 
---^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^TESTING BLOCK^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	/* 
-	DECLARE @ustrFullyQualifiedTable NVARCHAR(64) = N'';
-	DECLARE @ustrComment NVARCHAR(400) = N'';
 
-	EXEC Utility.DD.AddTableComment @ustrFullyQualifiedTable
-		, @ustrComment; 
-	
-*/
 
 --vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+END CATCH;
+ 
 
 
 GO

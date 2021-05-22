@@ -152,7 +152,7 @@ BEGIN TRY
 		BEGIN
 			SET @boolOptionalSuccessFlag = 0;--let any proc calling know that there is no table comments yet.
 			SET @ustrMessageOut = @ustrDataBaseName + '.' + @ustrSchemaName + '.' + @ustrTableOrObjName + 
-				N' currently has no comments please use Utility.DD.AddTableComment to add comments!';
+				N' currently has no comments please use Utility.DD.TableAddComment to add comments!';
 			SET @strOptionalMessageOut = @ustrMessageOut;
 		END
 

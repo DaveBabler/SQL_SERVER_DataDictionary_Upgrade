@@ -304,10 +304,28 @@ BEGIN CATCH
 		_____________________________
 
 '
-END CATCH
 
-	/*Dynamic Queries
-		-- IF NOT EXISTS
+
+
+
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^TESTING BLOCK^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	/* 
+	DECLARE @ustrFullyQualifiedTable NVARCHAR(64) = N'';
+	DECLARE @strColName VARCHAR(64) = '';
+	DECLARE @ustrComment NVARCHAR(400) = N'';
+
+	EXEC Utility.DD.ColumnAddComment @ustrFullyQualifiedTable
+		, @strColName
+		, @ustrComment; 
+
+	*/
+
+--vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+--dddddddddddddddddddddddddddddddddddddddddddd--DynamicSQLAsRegularBlock--dddddddddddddddddddddddddddddddddddddddddddddd
+	/*
+	--Place your dynamic SQL block here as normal SQL so others know what you are doing!
+	--if you are concatenating to a large block of Dynamic SQL use your best judgement if all of it needs to be down here or not
+			-- IF NOT EXISTS
 			SELECT NULL
 				FROM QUOTENAME(@ustrDatabaseName).sys.extended_properties
 				WHERE [major_id] = OBJECT_ID(@ustrFQON)
@@ -336,30 +354,15 @@ END CATCH
 				, @level1name = @ustrFQON
 				, @level2type = N'COLUMN'
 				, @level2name = @strColumnName;
+			
 	*/
+--DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+END CATCH
 
 
 
 
 
-
-
-
-
-
---^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^TESTING BLOCK^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	/* 
-	DECLARE @ustrFullyQualifiedTable NVARCHAR(64) = N'';
-	DECLARE @strColName VARCHAR(64) = '';
-	DECLARE @ustrComment NVARCHAR(400) = N'';
-
-	EXEC Utility.DD.ColumnAddComment @ustrFullyQualifiedTable
-		, @strColName
-		, @ustrComment; 
-
-	*/
-
---vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 
 GO
