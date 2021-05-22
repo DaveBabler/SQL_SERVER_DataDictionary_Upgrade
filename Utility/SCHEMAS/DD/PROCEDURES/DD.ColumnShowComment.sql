@@ -1,5 +1,7 @@
 USE Utility
 GO 
+--update change ShowColumnComment to a more standardized noun then verb style
+DROP PROCEDURE IF EXISTS DD.ShowColumnComment
 
 SET ANSI_NULLS ON
 GO
