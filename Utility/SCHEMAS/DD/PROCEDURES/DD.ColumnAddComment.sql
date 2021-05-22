@@ -1,7 +1,7 @@
 USE [Utility]
 GO
 DROP PROCEDURE IF EXISTS DD.AddColumnComment;
-
+GO 
 -- ==========================================================================================
 -- Author:			Dave Babler
 -- Create date: 	2020-08-26
