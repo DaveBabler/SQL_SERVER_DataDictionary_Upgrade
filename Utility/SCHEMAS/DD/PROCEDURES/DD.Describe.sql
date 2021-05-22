@@ -10,7 +10,7 @@ GO
 -- Create date: 08/26/2020
 -- Description:	This recreates and improves upon Oracle's ANSI DESCRIBE table built in data dictionary proc
 -- 				This will default to the dbo schema unless specified within the input parameter.
--- Subprocedures: 1. DD.ShowTableComment
+-- Subprocedures: 1. DD.TableShowComment
 -- 				  2. UTL_fn_DelimListToTable  (already exists, used to have diff name)
 -- =============================================
 ALTER   PROCEDURE [DD].[Describe]
@@ -65,7 +65,7 @@ SET NOCOUNT ON;
 		-- we want to suppress results (perhaps this could be proceduralized as well one to make the table one to kill?)
 		CREATE TABLE #__suppress_results (col1 INT);
 
-		EXEC Utility.DD.ShowTableComment @str_input_TableName
+		EXEC Utility.DD.TableShowComment @str_input_TableName
 			, @boolIsTableCommentSet OUTPUT
 			, @strTableComment OUTPUT;
 

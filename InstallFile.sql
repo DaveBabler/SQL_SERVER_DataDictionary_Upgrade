@@ -1298,7 +1298,7 @@ GO
 -- Create date: 08/26/2020
 -- Description:	This recreates and improves upon Oracle's ANSI DESCRIBE table built in data dictionary proc
 -- 				This will default to the dbo schema unless specified within the input parameter.
--- Subprocedures: 1. DD.ShowTableComment
+-- Subprocedures: 1. DD.TableShowComment
 -- 				  2. UTL_fn_DelimListToTable  (already exists, used to have diff name)
 -- =============================================
 CREATE OR ALTER   PROCEDURE [DD].[Describe]
@@ -1353,7 +1353,7 @@ SET NOCOUNT ON;
 		-- we want to suppress results (perhaps this could be proceduralized as well one to make the table one to kill?)
 		CREATE TABLE #__suppress_results (col1 INT);
 
-		EXEC Utility.DD.ShowTableComment @str_input_TableName
+		EXEC Utility.DD.TableShowComment @str_input_TableName
 			, @boolIsTableCommentSet OUTPUT
 			, @strTableComment OUTPUT;
 
@@ -1896,7 +1896,7 @@ GO
 CREATE
 	OR
 
-ALTER PROCEDURE DD.ShowTableComment @ustrFQON NVARCHAR(200)
+ALTER PROCEDURE DD.TableShowComment @ustrFQON NVARCHAR(200)
 	, @boolOptionalSuccessFlag BIT = NULL OUTPUT
 	, @strOptionalMessageOut NVARCHAR(320) = NULL OUTPUT
 	/** The success flag will be used when passing this to other procedures to see if table comments exist.
@@ -1917,7 +1917,7 @@ DECLARE @ustrMessageOut NVARCHAR(320)
 	, @dSQLPullCommentParameters NVARCHAR(MAX)
 	, @dSQLInternalVariantOutput SQL_VARIANT;
 
-CREATE TABLE #__SuppressOutputShowTableComment(
+CREATE TABLE #__SuppressOutputTableShowComment(
 	SuppressedOutput VARCHAR(MAX)
 )
 
@@ -1973,7 +1973,7 @@ BEGIN TRY
 									+ ' AND [name] = N''MS_Description''
 										AND [minor_id] = 0';
 										
-					INSERT INTO #__SuppressOutputShowTableComment
+					INSERT INTO #__SuppressOutputTableShowComment
 					EXEC sp_executesql @dSQLCheckForComment;
 					SET @intRowCount = @@ROWCOUNT;
 		IF @intRowCount != 0
@@ -2111,7 +2111,7 @@ PRINT
 	DECLARE @boolOptionalSuccessFlag BIT = NULL;
 	DECLARE @strOptionalMessageOut NVARCHAR(320) = NULL;
 
-	EXEC Utility.DD.ShowTableComment @ustrFullyQualifiedTable
+	EXEC Utility.DD.TableShowComment @ustrFullyQualifiedTable
 		, @boolOptionalSuccessFlag OUTPUT
 		, @strOptionalMessageOut OUTPUT;
 
