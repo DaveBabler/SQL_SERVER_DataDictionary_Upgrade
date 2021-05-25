@@ -26,6 +26,7 @@ BEGIN CATCH
 		, ERROR_MESSAGE()
 		, GETDATE()
 		);
+THROW 
 END CATCH;
 
 
