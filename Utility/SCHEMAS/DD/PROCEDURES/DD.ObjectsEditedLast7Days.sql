@@ -47,7 +47,7 @@ WHERE DATEDIFF(D, modify_date, GETDATE()) < 7'
 		DBName
 		, SchemaName
 		, ObjectName
-		, TypeOfObject
+		, DescriptiveObjectType
 		, DateModifed
 		)
 	EXEC sp_MSforeachdb @dSQLStatement
