@@ -1,12 +1,12 @@
-
 BEGIN TRY
 	SET XACT_ABORT ON;-- 
-	BEGIN TRANSACTION 
 
-    UPDATE NECRONOMICON
-    SET DemonsSummonedPerActivation = (12/0);
+	BEGIN TRANSACTION
 
-    COMMIT;
+	UPDATE NECRONOMICON
+	SET DemonsSummonedPerActivation = (12 / 0);
+
+	COMMIT;
 
 	SET XACT_ABORT OFF;-- 
 END TRY
@@ -50,10 +50,23 @@ BEGIN CATCH
 		, ERROR_STATE()
 		, ERROR_SEVERITY()
 		, ERROR_LINE()
-		, ERROR_PROCEDURE()
+		, ISNULL(ERROR_PROCEDURE(), CONCAT (
+				ERROR_PROCEDURE()
+				, ' '
+				, CONCAT (
+					DB_NAME()
+					, '.'
+					, SCHEMA_NAME()
+					, '.'
+					, OBJECT_NAME(@@PROCID)
+					)
+				))
 		, ERROR_MESSAGE()
 		, GETDATE()
 		);
-THROW;
+
+	THROW;
 END CATCH;
 GO
+
+
