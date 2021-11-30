@@ -131,7 +131,7 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	INSERT INTO CustomLog.ERR.DB_EXCEPTION_TANK (
+	INSERT INTO ERR.DB_EXCEPTION_TANK (
 		[DatabaseName]
 		, [UserName]
 		, [ErrorNumber]

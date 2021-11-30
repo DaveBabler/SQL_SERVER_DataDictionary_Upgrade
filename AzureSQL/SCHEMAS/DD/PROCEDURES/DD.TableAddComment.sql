@@ -185,7 +185,7 @@ BEGIN CATCH
 	IF @boolCatchFlag = 1
 	BEGIN
 
-	INSERT INTO CustomLog.ERR.DB_EXCEPTION_TANK (
+	INSERT INTO ERR.DB_EXCEPTION_TANK (
 		[DatabaseName]
 		, [UserName]
 		, [ErrorNumber]
@@ -211,7 +211,7 @@ BEGIN CATCH
 	ELSE
 	BEGIN
 
-	INSERT INTO CustomLog.ERR.DB_EXCEPTION_TANK (
+	INSERT INTO ERR.DB_EXCEPTION_TANK (
 		[DatabaseName]
 		, [UserName]
 		, [ErrorNumber]
@@ -245,7 +245,7 @@ BEGIN CATCH
 		WITH mxe
 		AS (
 			SELECT MAX(ErrorID) AS MaxError
-			FROM CustomLog.ERR.DB_EXCEPTION_TANK
+			FROM ERR.DB_EXCEPTION_TANK
 			)
 		SELECT ErrorID
 			, DatabaseName
@@ -256,7 +256,7 @@ BEGIN CATCH
 			, ErrorProcedure
 			, ErrorMessage
 			, ErrorDateTime
-		FROM CustomLog.ERR.DB_EXCEPTION_TANK et
+		FROM ERR.DB_EXCEPTION_TANK et
 		INNER JOIN mxe
 			ON et.ErrorID = mxe.MaxError
 

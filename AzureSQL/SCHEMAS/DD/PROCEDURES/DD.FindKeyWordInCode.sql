@@ -131,7 +131,7 @@ BEGIN CATCH
 			-- currently our database has this as default so we need to triple check it turns off on fail or success
 	END;
 
-	INSERT INTO CustomLog.ERR.DB_EXCEPTION_TANK (
+	INSERT INTO ERR.DB_EXCEPTION_TANK (
 		[DatabaseName]
 		, [UserName]
 		, [ErrorNumber]

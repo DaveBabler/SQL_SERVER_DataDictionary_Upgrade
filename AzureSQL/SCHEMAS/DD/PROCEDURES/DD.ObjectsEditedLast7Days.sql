@@ -63,7 +63,7 @@ WHERE DATEDIFF(D, modify_date, GETDATE()) < 7'
 END TRY
 
 BEGIN CATCH
-	INSERT INTO CustomLog.ERR.DB_EXCEPTION_TANK (
+	INSERT INTO ERR.DB_EXCEPTION_TANK (
 		[DatabaseName]
 		, [UserName]
 		, [ErrorNumber]

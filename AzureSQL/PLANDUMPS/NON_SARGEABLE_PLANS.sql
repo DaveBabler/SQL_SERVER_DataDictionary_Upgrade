@@ -1,6 +1,3 @@
-USE [CustomLog]
-GO
-
 SET ANSI_NULLS ON
 GO
 

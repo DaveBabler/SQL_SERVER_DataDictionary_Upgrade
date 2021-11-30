@@ -1,6 +1,3 @@
-USE [CustomLog]
-GO
-
 /****** Object:  Table [ERR].[DB_EXCEPTION_TANK]    Script Date: 5/2/2021 9:21:55 PM ******/
 SET ANSI_NULLS ON
 GO
