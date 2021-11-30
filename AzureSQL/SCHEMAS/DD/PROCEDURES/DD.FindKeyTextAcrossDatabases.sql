@@ -65,7 +65,7 @@ BEGIN TRY
         IF ''?'' <> ''master'' AND ''?'' <> ''model'' AND ''?'' <> ''msdb'' AND ''?'' <> ''tempdb''
             BEGIN 
             USE [?]
-        EXEC Utility.DD.FindKeyWordInCode [?], ' 
+        EXEC DD.FindKeyWordInCode [?], ' 
                     + '''' + @ustrKeyWord + '''' + ',' + '''' + @dlistTypeOfCodeToSearch + '''' + 'END';
 	END
 	ELSE
@@ -79,7 +79,7 @@ BEGIN TRY
             USE [?]
 			PRINT ' + '''' + @ustrKeyWord + '''' +'
             
-        EXEC Utility.DD.FindKeyWordInCode [?], ' 
+        EXEC DD.FindKeyWordInCode [?], ' 
 			+ '''' + @ustrKeyWord + '''' + ' END ';
 	END
 
@@ -163,7 +163,7 @@ GO
 
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--TESTING BLOCK--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     /*
-        USE [Utility]
+        
         GO
 
         DECLARE	@return_value int

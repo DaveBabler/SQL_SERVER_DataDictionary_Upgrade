@@ -1,6 +1,3 @@
-USE Utility;
-GO
-
 
 CREATE VIEW DD.V_AgentJobsByInterval
 AS

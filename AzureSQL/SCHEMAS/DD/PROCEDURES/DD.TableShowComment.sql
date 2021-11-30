@@ -138,7 +138,7 @@ AS
 			BEGIN
 				SET @boolOptionalSuccessFlag = 0; --let any proc calling know that there is no table comments yet.
 				SET @ustrMessageOut = @ustrDataBaseName + '.' + @ustrSchemaName + '.' + @ustrTableOrObjName
-									  + N' currently has no comments please use [Utility].DD.TableAddComment to add comments!';
+									  + N' currently has no comments please DD.TableAddComment to add comments!';
 				SET @strOptionalMessageOut = @ustrMessageOut;
 			END
 
@@ -188,7 +188,7 @@ AS
 	DECLARE @boolOptionalSuccessFlag BIT = NULL;
 	DECLARE @strOptionalMessageOut NVARCHAR(320) = NULL;
 
-	EXEC [$(DatabaseName)].DD.TableShowComment @ustrFullyQualifiedTable
+	EXEC DD.TableShowComment @ustrFullyQualifiedTable
 		, @boolOptionalSuccessFlag OUTPUT
 		, @strOptionalMessageOut OUTPUT;
 

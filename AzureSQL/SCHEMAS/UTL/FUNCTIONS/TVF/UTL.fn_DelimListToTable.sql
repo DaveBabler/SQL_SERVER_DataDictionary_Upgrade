@@ -1,4 +1,4 @@
-USE [Utility];
+
 GO
 ---this comment exists only to force it near the top of the heap in a github pull request---babler
 -- ======================================================================================

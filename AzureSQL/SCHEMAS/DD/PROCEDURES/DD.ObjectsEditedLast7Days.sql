@@ -1,4 +1,4 @@
-USE [Utility]
+
 GO
 
 
@@ -92,7 +92,7 @@ GO
 /*
   
         
-        EXECUTE	Utility.DD.ObjectsEditedLast7Days
+        EXECUTE	DD.ObjectsEditedLast7Days
         
         SELECT	*
         FROM ##ObjectsEditedLast7Days

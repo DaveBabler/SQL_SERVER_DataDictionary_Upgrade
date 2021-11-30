@@ -1,4 +1,4 @@
-USE [Utility]
+
 GO
 DROP PROCEDURE IF EXISTS DD.AddColumnComment;
 GO 
@@ -56,19 +56,19 @@ DECLARE @ustrVariantConv NVARCHAR(MAX) = REPLACE(CAST(@vrtComment AS NVARCHAR(MA
 BEGIN TRY
 	SET NOCOUNT ON;
 		--we do this type of insert to prevent seeing useless selects in the grid view on a SQL developer
-	EXEC Utility.DD.DBSchemaObjectAssignment @ustrFQON
+	EXEC DD.DBSchemaObjectAssignment @ustrFQON
 												, @ustrDatabaseName OUTPUT
 												, @ustrSchemaName OUTPUT
 												, @ustrTableorObjName OUTPUT;
 	
 	 /**REVIEW: if it becomes a problem where people are typing in tables wrong  all the time (check the exception log)
-	 * we can certainly add the Utility.UTL.DD_TableExist first and if that fails just dump the procedure and show an error message
+	 * we can certainly add the UTL.DD_TableExist first and if that fails just dump the procedure and show an error message
 	 * for now though checking for the column will also show bad table names but won't specify that it's the table, just an error
 	 	-- Dave Babler 
 	 */
 
 	 
-	EXEC Utility.DD.ColumnExist @ustrTableorObjName
+	EXEC DD.ColumnExist @ustrTableorObjName
 		, @strColumnName
 		, @ustrDatabaseName
 		, @ustrSchemaName
@@ -80,7 +80,7 @@ BEGIN TRY
 		 * Not necessary to check this beforehand as the previous calls will work for views and tables due to how
 		 * INFORMATION_SCHEMA is set up.  Unfortunately from this point on we'll be playing with Microsoft's sys tables
 		  */
-		SET @bitIsThisAView = Utility.DD.fn_IsThisTheNameOfAView(@ustrTableorObjName);
+		SET @bitIsThisAView = DD.fn_IsThisTheNameOfAView(@ustrTableorObjName);
 
 		IF @bitIsThisAView = 0
 			SET @ustrViewOrTable = 'TABLE';
@@ -314,7 +314,7 @@ BEGIN CATCH
 	DECLARE @strColName VARCHAR(64) = '';
 	DECLARE @ustrComment NVARCHAR(400) = N'';
 
-	EXEC Utility.DD.ColumnAddComment @ustrFullyQualifiedTable
+	EXEC DD.ColumnAddComment @ustrFullyQualifiedTable
 		, @strColName
 		, @ustrComment; 
 
@@ -367,7 +367,7 @@ END CATCH
 
 GO
 
-USE [Utility];
+
 GO
 
 -- ==========================================================================================
@@ -478,7 +478,7 @@ DECLARE @ustrSchemaName NVARCHAR(64) = '';
 DECLARE @boolSuccessFlag BIT;
 DECLARE @ustrMessageOut NVARCHAR(400);
 
-EXEC Utility.[DD].[ColumnExist] @ustrTableName
+EXEC [DD].[ColumnExist] @ustrTableName
 	, @ustrColumnName
 	, @ustrDBName
 	, @ustrSchemaName
@@ -490,7 +490,7 @@ SELECT @boolSuccessFlag
 */
 GO
 
-USE Utility
+
 GO 
 --update change ShowColumnComment to a more standardized noun then verb style
 DROP PROCEDURE IF EXISTS DD.ShowColumnComment
@@ -624,7 +624,7 @@ BEGIN TRY
 		ELSE
 		BEGIN
 			SET @ustrMessageOut = @ustrFQON + ' ' + @ustrColumnName + 
-				N' currently has no comments please use Utility.DD.ColumnAddComment to add a comment!';
+				N' currently has no comments please use DD.ColumnAddComment to add a comment!';
 		END
 
 		SELECT @ustrColumnName AS 'ColumnName'
@@ -697,7 +697,7 @@ END CATCH
 
             DECLARE	@return_value int
 
-            EXEC	@return_value = Utility.[DD].[ColumnShowComment]
+            EXEC	@return_value = [DD].[ColumnShowComment]
                     @ustrFQON = N'Galactic.dbo.WorkDone',
                     @ustrColumnName = N'Description'
 
@@ -758,7 +758,7 @@ ORDER BY qs.execution_count DESC
 OPTION (RECOMPILE);
 --to do, put in sp_foreach 	
 
-USE [Utility]
+
 GO
 
 /****** Object:  StoredProcedure [DD].[DBSchemaObjectAssignment]    Script Date: 4/28/2021 3:32:59 PM ******/
@@ -935,7 +935,7 @@ GO
 
 
 
-USE [Utility]
+
 GO
 /****** Object:  StoredProcedure [DD].[Describe]    Script Date: 4/28/2021 10:44:16 PM ******/
 SET ANSI_NULLS ON
@@ -975,7 +975,7 @@ BEGIN TRY
 SET NOCOUNT ON;
 		DROP TABLE IF EXISTS ##DESCRIBE;  --for future output to temp tables ignore for now
 	/** First check to see if a schema was specified in the input paramater, schema.table, else default to dbo. -- Babler*/
-		EXEC Utility.DD.DBSchemaObjectAssignment @str_input_TableName
+		EXEC DD.DBSchemaObjectAssignment @str_input_TableName
 			, @ustrDatabaseName OUTPUT
 			, @ustrSchemaName OUTPUT
 			, @ustrTableorObjName OUTPUT;
@@ -989,7 +989,7 @@ SET NOCOUNT ON;
 
 
 
-    EXEC Utility.DD.TableExist @ustrTableorObjName
+    EXEC DD.TableExist @ustrTableorObjName
 	, @ustrDatabaseName
 	, @ustrSchemaName
 	, @bitSuccessFlag OUTPUT
@@ -1002,7 +1002,7 @@ SET NOCOUNT ON;
 		-- we want to suppress results (perhaps this could be proceduralized as well one to make the table one to kill?)
 		CREATE TABLE #__suppress_results (col1 INT);
 
-		EXEC Utility.DD.TableShowComment @str_input_TableName
+		EXEC DD.TableShowComment @str_input_TableName
 			, @boolIsTableCommentSet OUTPUT
 			, @strTableComment OUTPUT;
 
@@ -1342,7 +1342,7 @@ BEGIN TRY
         IF ''?'' <> ''master'' AND ''?'' <> ''model'' AND ''?'' <> ''msdb'' AND ''?'' <> ''tempdb''
             BEGIN 
             USE [?]
-        EXEC Utility.DD.FindKeyWordInCode [?], ' 
+        EXEC DD.FindKeyWordInCode [?], ' 
                     + '''' + @ustrKeyWord + '''' + ',' + '''' + @dlistTypeOfCodeToSearch + '''' + 'END';
 	END
 	ELSE
@@ -1356,7 +1356,7 @@ BEGIN TRY
             USE [?]
 			PRINT ' + '''' + @ustrKeyWord + '''' +'
             
-        EXEC Utility.DD.FindKeyWordInCode [?], ' 
+        EXEC DD.FindKeyWordInCode [?], ' 
 			+ '''' + @ustrKeyWord + '''' + ' END ';
 	END
 
@@ -1440,7 +1440,7 @@ GO
 
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--TESTING BLOCK--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     /*
-        USE [Utility]
+        
         GO
 
         DECLARE	@return_value int
@@ -1458,7 +1458,7 @@ GO
 		--, (DATALENGTH(@ustrKeyWord) - (DATALENGTH(REPLACE(lower(@ustrKeyWord), lower(SourceCode), ''))/DATALENGTH(@ustrKeyWord))) AS 'APPROXcOUNT'
 
 
-		USE [Utility]
+		
 GO
 
 /****** Object:  StoredProcedure [DD].[FindKeyWordInCode]    Script Date: 5/4/2021 8:12:44 AM ******/
@@ -1473,7 +1473,7 @@ GO
 -- Create date: 9/16/2020
 -- Description:	Searches through all stored procedures, views, and functions 
 --				(based on selection)  for a specific keyword
--- Subprocedures: 1. Utility.UTL.fn_DelimListToTable
+-- Subprocedures: 1. UTL.fn_DelimListToTable
 -- Type Paramaters: P (procedure), FN (Scalar Function), TF (Table Function), TR (Trigger), V (View)
 -- ===============================================================================
 ALTER PROCEDURE [DD].[FindKeyWordInCode]
@@ -1509,14 +1509,14 @@ BEGIN TRY
                                                     , o.name COLLATE Latin1_General_CI_AS AS ObjectName
 													, o.[type] COLLATE Latin1_General_CI_AS AS ObjectType
 													, o.type_desc COLLATE Latin1_General_CI_AS AS DescriptiveObjectType
-																										, Utility.UTL.fn_CountOccurrencesOfString(m.DEFINITION, '  + '''' + @ustrKeyWord +   '''' +  ')
+																										, UTL.fn_CountOccurrencesOfString(m.DEFINITION, '  + '''' + @ustrKeyWord +   '''' +  ')
 													, CAST( m.DEFINITION AS NVARCHAR(MAX)) COLLATE Latin1_General_CI_AS AS Definition
 												FROM ' 
 			+ QUOTENAME(@ustrDBName) + '.sys.sql_modules m
 												INNER JOIN  ' + QUOTENAME(@ustrDBName) + 
 			'.sys.objects o
 													ON m.object_id = o.object_id
-												INNER JOIN Utility.UTL.fn_DelimListToTable(@dlistTypeOfCodeToSearch_ph, @charComma_ph) AS Q
+												INNER JOIN UTL.fn_DelimListToTable(@dlistTypeOfCodeToSearch_ph, @charComma_ph) AS Q
 													ON o.[type] = Q.StringValue COLLATE Latin1_General_CI_AS
 												WHERE lower(m.DEFINITION) LIKE ' + '''' + @strKeyWordPrepared + '''' + '
 												ORDER BY o.[type]  COLLATE Latin1_General_CI_AS '
@@ -1545,7 +1545,7 @@ BEGIN TRY
                                                     , o.name COLLATE Latin1_General_CI_AS AS ObjectName
                                                     , o.[type] COLLATE Latin1_General_CI_AS AS ObjectType
                                                     , o.type_desc COLLATE Latin1_General_CI_AS AS DescriptiveObjectType
-													, Utility.UTL.fn_CountOccurrencesOfString(m.DEFINITION, ' +  '''' + @ustrKeyWord +   '''' + ustrKeyWord + ')
+													, UTL.fn_CountOccurrencesOfString(m.DEFINITION, ' +  '''' + @ustrKeyWord +   '''' + ustrKeyWord + ')
                                                     , CAST( m.DEFINITION AS NVARCHAR(MAX)) COLLATE Latin1_General_CI_AS AS Definition
                                                 FROM ' 
 			+ QUOTENAME(@ustrDBName) + '.sys.sql_modules m
@@ -1613,7 +1613,7 @@ BEGIN CATCH
 END CATCH;
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--TESTING BLOCK--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	/*
-		USE [Utility]
+		
 		GO
 
 		DECLARE	@return_value int
@@ -1630,7 +1630,7 @@ END CATCH;
 	*/
 --vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-USE [Utility]
+
 GO
 
 
@@ -1724,7 +1724,7 @@ GO
 /*
   
         
-        EXECUTE	Utility.DD.ObjectsEditedLast7Days
+        EXECUTE	DD.ObjectsEditedLast7Days
         
         SELECT	*
         FROM ##ObjectsEditedLast7Days
@@ -1732,7 +1732,7 @@ GO
     */
 --vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-USE [Utility];
+
 GO
 -- ==========================================================================================
 -- Author:			Dave Babler
@@ -2003,7 +2003,7 @@ BEGIN CATCH
 	DECLARE @ustrFullyQualifiedTable NVARCHAR(64) = N'';
 	DECLARE @ustrComment NVARCHAR(400) = N'';
 
-	EXEC Utility.DD.TableAddComment @ustrFullyQualifiedTable
+	EXEC DD.TableAddComment @ustrFullyQualifiedTable
 		, @ustrComment; 
 	
 */
@@ -2054,7 +2054,7 @@ END CATCH;
 
 GO
 
-USE [Utility]
+
 GO
 /****** Object:  StoredProcedure [DD].[TableExist]    Script Date: 4/28/2021 3:08:05 PM ******/
 SET ANSI_NULLS ON
@@ -2172,7 +2172,7 @@ DECLARE @ustrSchemaName NVARCHAR(64) = '';
 DECLARE @boolSuccessFlag BIT;
 DECLARE @ustrMessageOut NVARCHAR(400);
 
-EXEC Utility.UTL.DD_TableExist @ustrTableName
+EXEC UTL.DD_TableExist @ustrTableName
 	, @ustrDBName
 	, @ustrSchemaName
 	, @boolSuccessFlag OUTPUT
@@ -2343,7 +2343,7 @@ END CATCH;
 --vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 GO
 
-USE Utility
+
 GO
 -- Delete old procedure update to noun verb form
 DROP PROCEDURE IF EXISTS DD.ShowTableComment;
@@ -2497,7 +2497,7 @@ BEGIN TRY
 		BEGIN
 			SET @boolOptionalSuccessFlag = 0;--let any proc calling know that there is no table comments yet.
 			SET @ustrMessageOut = @ustrDataBaseName + '.' + @ustrSchemaName + '.' + @ustrTableOrObjName + 
-				N' currently has no comments please use Utility.DD.TableAddComment to add comments!';
+				N' currently has no comments please use DD.TableAddComment to add comments!';
 			SET @strOptionalMessageOut = @ustrMessageOut;
 		END
 
@@ -2546,7 +2546,7 @@ BEGIN CATCH
 	DECLARE @boolOptionalSuccessFlag BIT = NULL;
 	DECLARE @strOptionalMessageOut NVARCHAR(320) = NULL;
 
-	EXEC Utility.DD.TableShowComment @ustrFullyQualifiedTable
+	EXEC DD.TableShowComment @ustrFullyQualifiedTable
 		, @boolOptionalSuccessFlag OUTPUT
 		, @strOptionalMessageOut OUTPUT;
 

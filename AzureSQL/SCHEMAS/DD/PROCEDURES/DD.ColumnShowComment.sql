@@ -1,5 +1,3 @@
-USE Utility
-GO 
 --update change ShowColumnComment to a more standardized noun then verb style
 DROP PROCEDURE IF EXISTS DD.ShowColumnComment
 
@@ -132,7 +130,7 @@ BEGIN TRY
 		ELSE
 		BEGIN
 			SET @ustrMessageOut = @ustrFQON + ' ' + @ustrColumnName + 
-				N' currently has no comments please use Utility.DD.ColumnAddComment to add a comment!';
+				N' currently has no comments please use DD.ColumnAddComment to add a comment!';
 		END
 
 		SELECT @ustrColumnName AS 'ColumnName'
@@ -205,7 +203,7 @@ END CATCH
 
             DECLARE	@return_value int
 
-            EXEC	@return_value = Utility.[DD].[ColumnShowComment]
+            EXEC	@return_value = [DD].[ColumnShowComment]
                     @ustrFQON = N'Galactic.dbo.WorkDone',
                     @ustrColumnName = N'Description'
 

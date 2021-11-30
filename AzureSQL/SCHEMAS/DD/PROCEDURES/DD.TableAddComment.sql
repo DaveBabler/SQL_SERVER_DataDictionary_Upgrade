@@ -1,4 +1,4 @@
-USE [Utility];
+
 GO
 -- ==========================================================================================
 -- Author:			Dave Babler
@@ -269,7 +269,7 @@ BEGIN CATCH
 	DECLARE @ustrFullyQualifiedTable NVARCHAR(64) = N'';
 	DECLARE @ustrComment NVARCHAR(400) = N'';
 
-	EXEC Utility.DD.TableAddComment @ustrFullyQualifiedTable
+	EXEC DD.TableAddComment @ustrFullyQualifiedTable
 		, @ustrComment; 
 	
 */

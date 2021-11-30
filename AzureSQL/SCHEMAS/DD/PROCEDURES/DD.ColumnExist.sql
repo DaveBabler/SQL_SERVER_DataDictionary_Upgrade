@@ -1,4 +1,4 @@
-USE [Utility];
+
 GO
 
 -- ==========================================================================================
@@ -109,7 +109,7 @@ DECLARE @ustrSchemaName NVARCHAR(64) = '';
 DECLARE @boolSuccessFlag BIT;
 DECLARE @ustrMessageOut NVARCHAR(400);
 
-EXEC Utility.[DD].[ColumnExist] @ustrTableName
+EXEC [DD].[ColumnExist] @ustrTableName
 	, @ustrColumnName
 	, @ustrDBName
 	, @ustrSchemaName

@@ -1,4 +1,4 @@
-USE [Utility]
+
 GO
 /****** Object:  StoredProcedure [DD].[Describe]    Script Date: 4/28/2021 10:44:16 PM ******/
 SET ANSI_NULLS ON
@@ -38,7 +38,7 @@ BEGIN TRY
 SET NOCOUNT ON;
 		DROP TABLE IF EXISTS ##DESCRIBE;  --for future output to temp tables ignore for now
 	/** First check to see if a schema was specified in the input paramater, schema.table, else default to dbo. -- Babler*/
-		EXEC Utility.DD.DBSchemaObjectAssignment @str_input_TableName
+		EXEC DD.DBSchemaObjectAssignment @str_input_TableName
 			, @ustrDatabaseName OUTPUT
 			, @ustrSchemaName OUTPUT
 			, @ustrTableorObjName OUTPUT;
@@ -52,7 +52,7 @@ SET NOCOUNT ON;
 
 
 
-    EXEC Utility.DD.TableExist @ustrTableorObjName
+    EXEC DD.TableExist @ustrTableorObjName
 	, @ustrDatabaseName
 	, @ustrSchemaName
 	, @bitSuccessFlag OUTPUT
@@ -65,7 +65,7 @@ SET NOCOUNT ON;
 		-- we want to suppress results (perhaps this could be proceduralized as well one to make the table one to kill?)
 		CREATE TABLE #__suppress_results (col1 INT);
 
-		EXEC Utility.DD.TableShowComment @str_input_TableName
+		EXEC DD.TableShowComment @str_input_TableName
 			, @boolIsTableCommentSet OUTPUT
 			, @strTableComment OUTPUT;
 

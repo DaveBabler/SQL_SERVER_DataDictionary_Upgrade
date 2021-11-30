@@ -1,4 +1,4 @@
-USE [Utility]
+
 GO
 DROP PROCEDURE IF EXISTS DD.AddColumnComment;
 GO 
@@ -56,19 +56,19 @@ DECLARE @ustrVariantConv NVARCHAR(MAX) = REPLACE(CAST(@vrtComment AS NVARCHAR(MA
 BEGIN TRY
 	SET NOCOUNT ON;
 		--we do this type of insert to prevent seeing useless selects in the grid view on a SQL developer
-	EXEC Utility.DD.DBSchemaObjectAssignment @ustrFQON
+	EXEC DD.DBSchemaObjectAssignment @ustrFQON
 												, @ustrDatabaseName OUTPUT
 												, @ustrSchemaName OUTPUT
 												, @ustrTableorObjName OUTPUT;
 	
 	 /**REVIEW: if it becomes a problem where people are typing in tables wrong  all the time (check the exception log)
-	 * we can certainly add the Utility.UTL.DD_TableExist first and if that fails just dump the procedure and show an error message
+	 * we can certainly add the UTL.DD_TableExist first and if that fails just dump the procedure and show an error message
 	 * for now though checking for the column will also show bad table names but won't specify that it's the table, just an error
 	 	-- Dave Babler 
 	 */
 
 	 
-	EXEC Utility.DD.ColumnExist @ustrTableorObjName
+	EXEC DD.ColumnExist @ustrTableorObjName
 		, @strColumnName
 		, @ustrDatabaseName
 		, @ustrSchemaName
@@ -80,7 +80,7 @@ BEGIN TRY
 		 * Not necessary to check this beforehand as the previous calls will work for views and tables due to how
 		 * INFORMATION_SCHEMA is set up.  Unfortunately from this point on we'll be playing with Microsoft's sys tables
 		  */
-		SET @bitIsThisAView = Utility.DD.fn_IsThisTheNameOfAView(@ustrTableorObjName);
+		SET @bitIsThisAView = DD.fn_IsThisTheNameOfAView(@ustrTableorObjName);
 
 		IF @bitIsThisAView = 0
 			SET @ustrViewOrTable = 'TABLE';
@@ -314,7 +314,7 @@ BEGIN CATCH
 	DECLARE @strColName VARCHAR(64) = '';
 	DECLARE @ustrComment NVARCHAR(400) = N'';
 
-	EXEC Utility.DD.ColumnAddComment @ustrFullyQualifiedTable
+	EXEC DD.ColumnAddComment @ustrFullyQualifiedTable
 		, @strColName
 		, @ustrComment; 
 

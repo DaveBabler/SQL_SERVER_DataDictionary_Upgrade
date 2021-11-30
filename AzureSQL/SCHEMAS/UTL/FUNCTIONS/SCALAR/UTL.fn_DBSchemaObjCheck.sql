@@ -1,4 +1,4 @@
-USE [Utility]
+
 GO
 
 /****** Object:  UserDefinedFunction [DD].[fn_DBSchemaObjCheck]    Script Date: 5/19/2021 9:30:07 AM ******/

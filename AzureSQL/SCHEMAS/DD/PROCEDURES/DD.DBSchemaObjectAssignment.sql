@@ -1,4 +1,4 @@
-USE [Utility]
+
 GO
 
 /****** Object:  StoredProcedure [DD].[DBSchemaObjectAssignment]    Script Date: 4/28/2021 3:32:59 PM ******/

@@ -1,4 +1,4 @@
-USE [Utility]
+
 GO
 /****** Object:  StoredProcedure [DD].[TableExist]    Script Date: 4/28/2021 3:08:05 PM ******/
 SET ANSI_NULLS ON
@@ -116,7 +116,7 @@ DECLARE @ustrSchemaName NVARCHAR(64) = '';
 DECLARE @boolSuccessFlag BIT;
 DECLARE @ustrMessageOut NVARCHAR(400);
 
-EXEC Utility.UTL.DD_TableExist @ustrTableName
+EXEC UTL.DD_TableExist @ustrTableName
 	, @ustrDBName
 	, @ustrSchemaName
 	, @boolSuccessFlag OUTPUT

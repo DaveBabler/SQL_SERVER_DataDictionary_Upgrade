@@ -1,7 +1,7 @@
 		--, (DATALENGTH(@ustrKeyWord) - (DATALENGTH(REPLACE(lower(@ustrKeyWord), lower(SourceCode), ''))/DATALENGTH(@ustrKeyWord))) AS 'APPROXcOUNT'
 
 
-		USE [Utility]
+		
 GO
 
 /****** Object:  StoredProcedure [DD].[FindKeyWordInCode]    Script Date: 5/4/2021 8:12:44 AM ******/
@@ -16,7 +16,7 @@ GO
 -- Create date: 9/16/2020
 -- Description:	Searches through all stored procedures, views, and functions 
 --				(based on selection)  for a specific keyword
--- Subprocedures: 1. Utility.UTL.fn_DelimListToTable
+-- Subprocedures: 1. UTL.fn_DelimListToTable
 -- Type Paramaters: P (procedure), FN (Scalar Function), TF (Table Function), TR (Trigger), V (View)
 -- ===============================================================================
 ALTER PROCEDURE [DD].[FindKeyWordInCode]
@@ -52,14 +52,14 @@ BEGIN TRY
                                                     , o.name COLLATE Latin1_General_CI_AS AS ObjectName
 													, o.[type] COLLATE Latin1_General_CI_AS AS ObjectType
 													, o.type_desc COLLATE Latin1_General_CI_AS AS DescriptiveObjectType
-																										, Utility.UTL.fn_CountOccurrencesOfString(m.DEFINITION, '  + '''' + @ustrKeyWord +   '''' +  ')
+																										, UTL.fn_CountOccurrencesOfString(m.DEFINITION, '  + '''' + @ustrKeyWord +   '''' +  ')
 													, CAST( m.DEFINITION AS NVARCHAR(MAX)) COLLATE Latin1_General_CI_AS AS Definition
 												FROM ' 
 			+ QUOTENAME(@ustrDBName) + '.sys.sql_modules m
 												INNER JOIN  ' + QUOTENAME(@ustrDBName) + 
 			'.sys.objects o
 													ON m.object_id = o.object_id
-												INNER JOIN Utility.UTL.fn_DelimListToTable(@dlistTypeOfCodeToSearch_ph, @charComma_ph) AS Q
+												INNER JOIN UTL.fn_DelimListToTable(@dlistTypeOfCodeToSearch_ph, @charComma_ph) AS Q
 													ON o.[type] = Q.StringValue COLLATE Latin1_General_CI_AS
 												WHERE lower(m.DEFINITION) LIKE ' + '''' + @strKeyWordPrepared + '''' + '
 												ORDER BY o.[type]  COLLATE Latin1_General_CI_AS '
@@ -88,7 +88,7 @@ BEGIN TRY
                                                     , o.name COLLATE Latin1_General_CI_AS AS ObjectName
                                                     , o.[type] COLLATE Latin1_General_CI_AS AS ObjectType
                                                     , o.type_desc COLLATE Latin1_General_CI_AS AS DescriptiveObjectType
-													, Utility.UTL.fn_CountOccurrencesOfString(m.DEFINITION, ' +  '''' + @ustrKeyWord +   '''' + ustrKeyWord + ')
+													, UTL.fn_CountOccurrencesOfString(m.DEFINITION, ' +  '''' + @ustrKeyWord +   '''' + ustrKeyWord + ')
                                                     , CAST( m.DEFINITION AS NVARCHAR(MAX)) COLLATE Latin1_General_CI_AS AS Definition
                                                 FROM ' 
 			+ QUOTENAME(@ustrDBName) + '.sys.sql_modules m
@@ -156,7 +156,7 @@ BEGIN CATCH
 END CATCH;
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--TESTING BLOCK--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	/*
-		USE [Utility]
+		
 		GO
 
 		DECLARE	@return_value int
