@@ -4,7 +4,7 @@ GO
 -- ==========================================================================================
 -- Author:		    Dave Babler
 -- Create date:     08/25/2020
--- Last Modified:   01/29/2020
+-- Last Modified:   12/02/2021
 -- Description:	    Checks to see if column in table exists 
 --                  use output Boolean for logic flow in other procedures
 -- 					This will work just fine for Views without further modification.
@@ -14,7 +14,6 @@ CREATE
 
 ALTER PROCEDURE [DD].[ColumnExist] @ustrTableName NVARCHAR(64)
 	, @ustrColumnName NVARCHAR(64)
-	, @ustrDBName NVARCHAR(64) --SHOULD BE PASSED IN FROM ANOTHER PROC
 	, @ustrSchemaName NVARCHAR(64) --SHOULD BE PASSED IN FROM ANOTHER PROC
 	, @boolSuccessFlag BIT OUTPUT
 	, @ustrMessageOut NVARCHAR(400) = NULL OUTPUT
@@ -31,18 +30,15 @@ BEGIN TRY
 		HoldingCol NVARCHAR(MAX)
 	); -- this table is for shutting down the useless output that sometimes happens with dynamic SQL
 
-	DECLARE @ustrQuotedDB NVARCHAR(128) = N'' + QUOTENAME(@ustrDBName) + '';
 	DECLARE @intRowCount INT;
 	DECLARE @SQLCheckForTable NVARCHAR(1000) = 'SELECT NULL
-                               FROM ' + @ustrQuotedDB + 
-		'.INFORMATION_SCHEMA.COLUMNS 
+                               FROM INFORMATION_SCHEMA.COLUMNS 
                                WHERE TABLE_NAME = @ustrTable 
                                     AND TABLE_SCHEMA = @ustrSchema
                                     	AND COLUMN_NAME = @ustrColumn'
 		;
 
 
-	
 	INSERT INTO #__suppressColExistDynamicOutput
 	EXECUTE sp_executesql @SQLCheckForTable
 		, N'@ustrTable NVARCHAR(64), 
@@ -103,7 +99,6 @@ END CATCH;
 /**
 
 DECLARE @ustrTableName NVARCHAR(64) = '';
-DECLARE @ustrDBName NVARCHAR(64) = '';
 DECLARE @ustrColumnName NVARCHAR(64) = ''
 DECLARE @ustrSchemaName NVARCHAR(64) = '';
 DECLARE @boolSuccessFlag BIT;
@@ -111,7 +106,6 @@ DECLARE @ustrMessageOut NVARCHAR(400);
 
 EXEC [DD].[ColumnExist] @ustrTableName
 	, @ustrColumnName
-	, @ustrDBName
 	, @ustrSchemaName
 	, @boolSuccessFlag OUTPUT
 	, @ustrMessageOut OUTPUT;
