@@ -76,7 +76,9 @@ BEGIN TRY
 		ELSE
 			SET @ustrViewOrTable = 'VIEW';
 
-			/**Check to see if the column or table actually exists -- Babler*/
+
+
+			/**TODO Check to see if the column or table actually exists -- Babler*/  
 	IF @boolExistFlag = 0
 	BEGIN
 		SET @boolCatchFlag = 1;
@@ -93,17 +95,12 @@ ELSE
                         * Normally it's just a simple matter of ALTER TABLE/ALTER COLUMN ADD COMMENT, literally every other system
                         * however, Microsoft Has decided to use this sort of registry style of documentation 
                         * -- Dave Babler 2020-08-26*/
-
 		SET @intRowCount = NULL;
 		--future DBA's reading this...I can already hear your wailing and gnashing of teeth about SQL Injection. Stow it, only DBA's and devs will use this, it won't be customer facing.
 		SET @dSQLNotExistCheckProperties = N' SELECT NULL
-											  FROM 	'
-											  + QUOTENAME(@ustrDatabaseName)
-											  + '.sys.extended_properties'
+											  FROM 	sys.extended_properties'
 											  + ' WHERE [major_id] = OBJECT_ID('
 											  + ''''
-											  + @ustrDatabaseName
-											  + '.'
 											  + @ustrSchemaName
 											  + '.'
 											  + @ustrTableOrObjName
@@ -122,10 +119,7 @@ ELSE
 		IF @intRowCount = 0 
 			BEGIN
 
-				SET @dSQLApplyComment = N'EXEC ' 
-										+ @ustrDatabaseName 
-										+ '.'
-										+ 'sys.sp_addextendedproperty '
+				SET @dSQLApplyComment = N'EXEC sys.sp_addextendedproperty '
 										+ '@name = N''MS_Description'' '
 										+ ', @value = '
 										+ ''''
@@ -148,10 +142,7 @@ ELSE
 		ELSE
 			BEGIN 
 				--DYNAMIC SQL FOR UPDATE EXTENDED PROPERTY GOES HERE.
-								SET @dSQLApplyComment = N'EXEC ' 
-										+ @ustrDatabaseName 
-										+ '.'
-										+ 'sys.sp_updateextendedproperty  '
+								SET @dSQLApplyComment = N'EXEC sys.sp_updateextendedproperty  '
 										+ '@name = N''MS_Description'' '
 										+ ', @value = '
 										+ ''''
@@ -264,11 +255,18 @@ BEGIN CATCH
 
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^TESTING BLOCK^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	/* 
-	DECLARE @ustrFullyQualifiedTable NVARCHAR(64) = N'';
-	DECLARE @ustrComment NVARCHAR(400) = N'';
+			DECLARE @ustrFullyQualifiedTable NVARCHAR(64) = N'HumanResources.EmployeeDepartmentHistory';
+			DECLARE @ustrComment NVARCHAR(400) = N'Employee department transfers.';
 
-	EXEC DD.TableAddComment @ustrFullyQualifiedTable
-		, @ustrComment; 
+			EXEC DD.TableAddComment @ustrFullyQualifiedTable, @ustrComment;
+
+			SELECT  *
+			FROM    sys.extended_properties
+			WHERE   [major_id]     = OBJECT_ID('HumanResources.EmployeeDepartmentHistory')
+					AND [name]     = N'MS_Description'
+					AND [minor_id] = 0
+
+
 	
 */
 
@@ -278,7 +276,7 @@ BEGIN CATCH
 		-- properties if not exists
 
 					SELECT NULL
-					FROM QUOTENAME(@ustrDatabaseName).SYS.EXTENDED_PROPERTIES
+					FROM SYS.EXTENDED_PROPERTIES
 					WHERE [major_id] = OBJECT_ID(@ustrTableOrObjName)
 						AND [name] = N'MS_Description'
 						AND [minor_id] = 0
@@ -286,7 +284,7 @@ BEGIN CATCH
         -- add the properties  if they don't exist
                 --be advised trying to run this without dynamic sql call will not work.
             
-		      EXECUTE @ustrDatabaseName.sp_addextendedproperty @name = N'MS_Description'
+		      EXECUTE sp_addextendedproperty @name = N'MS_Description'
 		          , @value = @vrtComment
 		          , @level0type = N'SCHEMA'
 		          , @level0name = @ustrSchemaName
@@ -295,7 +293,7 @@ BEGIN CATCH
 
         -- replace the properties  if they already exist
                 --be advised trying to run this without dynamic sql call will not work.
-              EXECUTE @ustrDatabaseName.sp_updateextendedproperty @name = N'MS_Description'
+              EXECUTE sp_updateextendedproperty @name = N'MS_Description'
 		          , @value = @vrtComment
 		          , @level0type = N'SCHEMA'
 		          , @level0name = N'dbo'
