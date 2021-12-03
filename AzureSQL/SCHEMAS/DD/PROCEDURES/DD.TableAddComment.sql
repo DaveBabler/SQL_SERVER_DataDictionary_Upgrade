@@ -69,16 +69,20 @@ BEGIN TRY
 		 * Not necessary to check this beforehand as the previous calls will work for views and tables due to how
 		 * INFORMATION_SCHEMA is set up.  Unfortunately from this point on we'll be playing with Microsoft's sys tables
 		  */
-		SELECT @bitIsThisAView = [DD].[fn_IsThisTheNameOfAView](@ustrTableOrObjName);
+	SELECT @bitIsThisAView = [DD].[fn_IsThisTheNameOfAView](@ustrTableOrObjName);
 
-		IF @bitIsThisAView = 0
-			SET @ustrViewOrTable = 'TABLE';
-		ELSE
-			SET @ustrViewOrTable = 'VIEW';
+	IF @bitIsThisAView = 0
+		SET @ustrViewOrTable = 'TABLE';
+	ELSE
+		SET @ustrViewOrTable = 'VIEW';
 
 
 
 			/**TODO Check to see if the column or table actually exists -- Babler*/  
+	EXEC DD.TableExist @ustrTableOrObjName
+					, @ustrSchemaName
+					, @boolExistFlag OUTPUT
+					, @ustrMessageOut OUTPUT
 	IF @boolExistFlag = 0
 	BEGIN
 		SET @boolCatchFlag = 1;
@@ -310,6 +314,7 @@ BEGIN CATCH
 
 
 --vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
 END CATCH;
  
 

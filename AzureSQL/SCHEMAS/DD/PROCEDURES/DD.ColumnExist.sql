@@ -38,7 +38,6 @@ BEGIN TRY
                                     	AND COLUMN_NAME = @ustrColumn'
 		;
 
-
 	INSERT INTO #__suppressColExistDynamicOutput
 	EXECUTE sp_executesql @SQLCheckForTable
 		, N'@ustrTable NVARCHAR(64), 
