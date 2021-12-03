@@ -33,7 +33,6 @@ AS
                                WHERE TABLE_NAME = @ustrTable 
                                     AND TABLE_SCHEMA = @ustrSchema';
 
-        PRINT @SQLCheckForTable;
 
         DROP TABLE IF EXISTS #__beQuiet;
         CREATE TABLE #__beQuiet
@@ -43,7 +42,6 @@ AS
 
         IF SCHEMA_ID(@ustrSchemaName) IS NOT NULL
             BEGIN
-                PRINT 'Schema not null;'
                 INSERT INTO #__beQuiet
                 EXECUTE sp_executesql @SQLCheckForTable
                                     , N'@ustrTable NVARCHAR(64), @ustrSchema NVARCHAR(64)'
@@ -53,12 +51,9 @@ AS
 
 
                 SET @intRowCount = @@ROWCOUNT;
-                PRINT @intRowCount;
-
 
                 IF @intRowCount <> 1
                     BEGIN
-                        PRINT 'ROWCOUNT NOT 1'
                         SET @boolSuccessFlag = 0;
                         SET @ustrMessageOut = @ustrTableName + @ustrOutGoingMessageEnd;
                     END

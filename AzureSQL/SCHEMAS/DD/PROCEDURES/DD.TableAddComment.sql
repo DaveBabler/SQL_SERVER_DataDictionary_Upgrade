@@ -26,7 +26,8 @@ DECLARE @vrtComment SQL_VARIANT
 	, @dSQLNotExistCheckProperties NVARCHAR(MAX) -- could recycle previous var, don't want to
 	, @dSQLApplyComment NVARCHAR(MAX) -- will use the same  dynamic sql variable name regardless of whether or not we add or update hence 'apply'
 	, @intRowCount INT
-	, @boolExistFlag BIT
+	, @bitExistFlag BIT
+	, @boolSuccessFlag BIT --to segregate from the OUTPUT paramater of a subproc
 	, @ustrMessageOut NVARCHAR(400)
 	, @bitIsThisAView BIT
 	, @ustrViewOrTable NVARCHAR(8)
@@ -81,9 +82,10 @@ BEGIN TRY
 			/**TODO Check to see if the column or table actually exists -- Babler*/  
 	EXEC DD.TableExist @ustrTableOrObjName
 					, @ustrSchemaName
-					, @boolExistFlag OUTPUT
-					, @ustrMessageOut OUTPUT
-	IF @boolExistFlag = 0
+					,  @bitExistFlag   OUTPUT
+					, @ustrMessageOut OUTPUT;  
+
+	IF @bitExistFlag = 0
 	BEGIN
 		SET @boolCatchFlag = 1;
 		RAISERROR (
@@ -175,6 +177,7 @@ ELSE
 END TRY
 
 BEGIN CATCH
+
 	IF @boolCatchFlag = 1
 	BEGIN
 
