@@ -4,11 +4,10 @@ GO
 -- Author:			Dave Babler
 -- Create date: 	2020-08-25
 -- Last Edited By:	Dave Babler
--- Last Updated:	2021-04-24
+-- Last Updated:	2021-12-03
 -- Description:		This will either add or wipe and update the comments on a table
--- SubProcedures:	1.	[Utility].[DD].[DBSchemaObjectAssignment]
+-- SubProcedures:	1.	[Utility].[DD].[fn_IsThisTheNameOfAView]
 --					2.  [Utility].[DD].[TableExist]
---					3.	[Utility].[DD].[fn_IsThisTheNameOfAView]
 -- TODO: 			Upon update add the old value to some sort of LogTable, along with the user doing it.
 -- ==========================================================================================
 CREATE OR ALTER PROCEDURE DD.TableAddComment
@@ -54,13 +53,12 @@ CREATE TABLE #__SuppressOutputTableAddComment (
 BEGIN TRY
 	SET NOCOUNT ON;
 	--break apart the fully qualified object name
-	INSERT INTO #__SuppressOutputTableAddComment
-	EXEC [Utility].[DD].[DBSchemaObjectAssignment] @ustrFQON
-												, @ustrDatabaseName OUTPUT
-												, @ustrSchemaName OUTPUT
-												, @ustrTableOrObjName OUTPUT;
+        SET @ustrTableorObjName = PARSENAME(@ustrFQON, 1)
+        SET @ustrSchemaName = PARSENAME(@ustrFQON, 2)
+        SET @ustrDatabaseName = PARSENAME(@ustrFQON, 3)
 
 
+	--trashy Babler trick  to stop  unneeded output since  we need to leave NOCOUNT ON
 	INSERT INTO #__SuppressOutputTableAddComment
 	VALUES(NULL);
 
@@ -71,7 +69,7 @@ BEGIN TRY
 		 * Not necessary to check this beforehand as the previous calls will work for views and tables due to how
 		 * INFORMATION_SCHEMA is set up.  Unfortunately from this point on we'll be playing with Microsoft's sys tables
 		  */
-		SELECT @bitIsThisAView = [Utility].[DD].[fn_IsThisTheNameOfAView](@ustrTableOrObjName);
+		SELECT @bitIsThisAView = [DD].[fn_IsThisTheNameOfAView](@ustrTableOrObjName);
 
 		IF @bitIsThisAView = 0
 			SET @ustrViewOrTable = 'TABLE';

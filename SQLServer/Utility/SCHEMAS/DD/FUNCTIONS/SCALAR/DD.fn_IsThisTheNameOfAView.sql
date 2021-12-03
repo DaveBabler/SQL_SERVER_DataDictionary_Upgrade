@@ -44,3 +44,16 @@ BEGIN
 	RETURN @bitFlag
 END
 GO
+
+
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--TESTING BLOCK--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/*
+		SELECT  CASE
+						WHEN [Utility].[DD].[fn_IsThisTheNameOfAView]('vw_ThisisprobablyaViewItstartswithvw') = 1 THEN
+							'Yes it is a view'
+						ELSE
+							'It might not be, double check'
+					END AS "Is this A View";
+			GO
+    */
+--vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
