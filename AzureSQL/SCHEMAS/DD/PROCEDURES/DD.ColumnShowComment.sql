@@ -14,9 +14,8 @@ GO
 -- Last Updated:	2021-04-24
 -- Description:	    This procedure makes viewing comments on a single column much more accessible.
 -- Subprocedures: 	1. [Utility].[UTL].[fn_SuppressOutput]
--- 					2. [Utility].[DD].[DBSchemaObjectAssignment]
--- 					3. [Utility].[DD].[ColumnExist]
---  				4. [Utility].[DD].[fn_IsThisTheNameOfAView]
+-- 					2. [Utility].[DD].[ColumnExist]
+--  				3. [Utility].[DD].[fn_IsThisTheNameOfAView]
 -- ==========================================================================================
 CREATE
 	OR
@@ -40,7 +39,7 @@ DROP TABLE IF EXISTS #__SuppressOutputColumnComment
 
 BEGIN TRY
 
-		        SET @ustrTableorObjName = PARSENAME(@ustrFQON, 1)
+		SET @ustrTableorObjName = PARSENAME(@ustrFQON, 1)
         SET @ustrSchemaName = PARSENAME(@ustrFQON, 2)
 
 	EXEC[DD].[ColumnExist] @ustrTableOrObjName
