@@ -27,7 +27,6 @@ ALTER PROCEDURE [DD].[ColumnShowComment]
 	, @ustrColumnName NVARCHAR(64)
 AS
 DECLARE @ustrMessageOut NVARCHAR(320)
-	, @ustrDatabaseName NVARCHAR(64)
 	, @ustrSchemaName NVARCHAR(64)
 	, @ustrTableOrObjName NVARCHAR(64)
 	, @intRowCount INT
@@ -40,14 +39,12 @@ DROP TABLE IF EXISTS #__SuppressOutputColumnComment
 	CREATE TABLE #__SuppressOutputColumnComment (SuppressedOutput VARCHAR(MAX))
 
 BEGIN TRY
-	EXEC [Utility].[DD].[DBSchemaObjectAssignment] @ustrFQON
-		, @ustrDatabaseName OUTPUT
-		, @ustrSchemaName OUTPUT
-		, @ustrTableOrObjName OUTPUT;
 
-	EXEC [Utility].[DD].[ColumnExist] @ustrTableOrObjName
+		        SET @ustrTableorObjName = PARSENAME(@ustrFQON, 1)
+        SET @ustrSchemaName = PARSENAME(@ustrFQON, 2)
+
+	EXEC[DD].[ColumnExist] @ustrTableOrObjName
 		, @ustrColumnName
-		, @ustrDatabaseName
 		, @ustrSchemaName
 		, @boolExistFlag OUTPUT
 		, @ustrMessageOut OUTPUT;
@@ -60,20 +57,18 @@ BEGIN TRY
 		SET @intRowCount = 0;
 		SET @dSQLCheckForComment = N'
                     SELECT 1
-                    FROM ' + QUOTENAME(@ustrDatabaseName
-			) + '.sys.extended_properties
-                    WHERE [major_id] = OBJECT_ID(' + '''' + @ustrDatabaseName + '.' + 
+                    FROM '  + '.sys.extended_properties
+                    WHERE [major_id] = OBJECT_ID(' + '''' + '.' + 
 			@ustrSchemaName + '.' + @ustrTableOrObjName + '''' + 
 			')
                         AND [name] = N''MS_Description''
                         AND [minor_id] = (
                             SELECT [column_id]
                             FROM ' 
-			+ QUOTENAME(@ustrDatabaseName) + '.sys.columns
+			 + '.sys.columns
                             WHERE [name] = ' + '''' + 
 			@ustrColumnName + '''' + '
-                                AND [object_id] = OBJECT_ID(' + '''' + @ustrDatabaseName 
-			+ '.' + @ustrSchemaName + '.' + @ustrTableOrObjName + '''' + ')
+                                AND [object_id] = OBJECT_ID(' + '''' + '.' + @ustrSchemaName + '.' + @ustrTableOrObjName + '''' + ')
                             )
                     ';
 
@@ -93,17 +88,16 @@ BEGIN TRY
 				N'
                 SELECT TOP 1 @ustrMessageOutTemp = CAST(ep.value AS  NVARCHAR(320))
                 FROM ' 
-				+ QUOTENAME(@ustrDataBaseName) + '.sys.extended_properties AS ep
-                INNER JOIN ' + QUOTENAME(
-					@ustrDataBaseName) + 
+				+ '.sys.extended_properties AS ep
+                INNER JOIN '  + 
 				'.sys.all_objects AS ob
                     ON ep.major_id = ob.object_id
                 INNER JOIN ' 
-				+ QUOTENAME(@ustrDataBaseName) + 
+				 + 
 				'.sys.tables AS st
                     ON ob.object_id = st.object_id
                 INNER JOIN ' + 
-				QUOTENAME(@ustrDataBaseName) + 
+			 
 				'.sys.columns AS c	
                     ON ep.major_id = c.object_id
                         AND ep.minor_id = c.column_id
@@ -227,12 +221,12 @@ WHERE [major_id] = OBJECT_ID(@ustrFQON)
 		);
 
 SELECT TOP 1 @ustrMessageOutTemp = CAST(ep.value AS NVARCHAR(320))
-FROM [DatabaseName].sys.extended_properties AS ep
-INNER JOIN [DatabaseName].sys.all_objects AS ob
+FROM sys.extended_properties AS ep
+INNER JOIN sys.all_objects AS ob
 	ON ep.major_id = ob.object_id
-INNER JOIN [DatabaseName].sys.tables AS st
+INNER JOIN sys.tables AS st
 	ON ob.object_id = st.object_id
-INNER JOIN [DatabaseName].sys.columns AS c
+INNER JOIN sys.columns AS c
 	ON ep.major_id = c.object_id
 		AND ep.minor_id = c.column_id
 WHERE st.name = @ustrFQON

@@ -21,7 +21,6 @@ AS
 * supposedly for 'security' --Dave Babler*/
     DECLARE @vrtComment                  SQL_VARIANT
           , @strErrorMessage             VARCHAR(MAX)
-          , @ustrDatabaseName            NVARCHAR(64)
           , @ustrSchemaName              NVARCHAR(64)
           , @ustrTableorObjName          NVARCHAR(64)
           , @dSQLNotExistCheck           NVARCHAR(MAX)
@@ -55,7 +54,6 @@ AS
         --we do this type of insert to prevent seeing useless selects in the grid view on a SQL developer
         SET @ustrTableorObjName = PARSENAME(@ustrFQON, 1)
         SET @ustrSchemaName = PARSENAME(@ustrFQON, 2)
-        SET @ustrDatabaseName = PARSENAME(@ustrFQON, 3)
 
 
         /**REVIEW: if it becomes a problem where people are typing in tables wrong  all the time (check the exception log)
@@ -67,7 +65,6 @@ AS
 
         EXEC DD.ColumnExist @ustrTableorObjName
                           , @strColumnName
-                          , @ustrDatabaseName
                           , @ustrSchemaName
                           , @boolExistFlag OUTPUT
                           , @ustrMessageOut OUTPUT;
@@ -105,14 +102,14 @@ AS
                 SET @intRowCount = NULL;
                 SET @dSQLNotExistCheckProperties = N' SELECT NULL
 											FROM sys.extended_properties'
-                                                   + ' WHERE [major_id] = OBJECT_ID(' + '''' + @ustrDatabaseName + '.'
+                                                   + ' WHERE [major_id] = OBJECT_ID(' + '''' 
                                                    + @ustrSchemaName + '.' + @ustrTableorObjName + '''' + ')'
                                                    + ' AND [name] = N''MS_Description''		
 													  AND [minor_id] =	(				
 														  SELECT [column_id]
 															FROM sys.columns
 															WHERE [name] =  ' + '''' + @strColumnName + ''''
-                                                   + ' AND [object_id] = OBJECT_ID( ' + '''' + @ustrDatabaseName + '.'
+                                                   + ' AND [object_id] = OBJECT_ID( ' + '''' 
                                                    + @ustrSchemaName + '.' + @ustrTableorObjName + '''' + ' )   )';
                 INSERT INTO #__SuppressOutputColumnAddComment
                 EXEC sp_executesql @dSQLNotExistCheckProperties;
@@ -236,17 +233,23 @@ AS
 
 
 
-    --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^TESTING BLOCK^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    /* 
+     /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^TESTING BLOCK^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   
  
+        DECLARE @ustrFQON      NVARCHAR(200)
+            , @strColumnName VARCHAR(64)
+            , @ustrComment   NVARCHAR(200);
 
-	EXEC DD.ColumnAddComment @ustrFQON
-		, @strColumnName
-		, @ustrComment; 
+        SET @ustrFQON = N'';
+        SET @strColumnName = '';
+        SET @ustrComment = N'';
 
-	*/
+        EXEC DD.ColumnAddComment @ustrFQON, @strColumnName, @ustrComment;
 
-    --vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+
+        vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv	*/
+
     --dddddddddddddddddddddddddddddddddddddddddddd--DynamicSQLAsRegularBlock--dddddddddddddddddddddddddddddddddddddddddddddd
     /*
 	--Place your dynamic SQL block here as normal SQL so others know what you are doing!
@@ -258,7 +261,7 @@ AS
 					AND [name] = N'MS_Description'
 					AND [minor_id] = (
 						SELECT [column_id]
-						FROM QUOTENAME(@ustrDatabaseName).sys.columns
+						FROM sys.columns
 						WHERE [name] = @strColumnName
 							AND [object_id] = OBJECT_ID(@ustrFQON);
 
