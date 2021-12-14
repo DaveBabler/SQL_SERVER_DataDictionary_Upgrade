@@ -8,12 +8,11 @@ GO
 -- Author:			Dave Babler
 -- Create date: 	2020-08-25
 -- Last Edited By:	Dave Babler
--- Last Updated:	2021-04-24
+-- Last Updated:	2021-12-15
 -- Description:		Checks to see if table comments exist
 -- Subprocedures: 	1. [$(DatabaseName)].[UTL].[fn_SuppressOutput]
--- 					2. [$(DatabaseName)].[DD].[DBSchemaObjectAssignment]
--- 					3. [$(DatabaseName)].[DD].[TableExist]
---  				4. [$(DatabaseName)].[DD].[fn_IsThisTheNameOfAView]
+-- 					2. [$(DatabaseName)].[DD].[TableExist]
+--  				3. [$(DatabaseName)].[DD].[fn_IsThisTheNameOfAView]
 -- ==========================================================================================
 
 CREATE OR ALTER PROCEDURE [DD].[TableShowComment]
@@ -29,10 +28,9 @@ AS
 		  , @bitSuppressVisualOutput BIT
 		  , @bitIsThisAView BIT
 		  , @bitExistFlag BIT
-		  , @ustrDatabaseName NVARCHAR(64)
 		  , @ustrSchemaName NVARCHAR(64)
 		  , @ustrTableOrObjName NVARCHAR(64)
-		  , @ustrViewOrTable NVARCHAR(8)
+		  , @ustrViewOrTable NVARCHAR(16)
 		  , @dSQLCheckForComment NVARCHAR(MAX)
 		  , @dSQLPullComment NVARCHAR(MAX)
 		  , @dSQLPullCommentParameters NVARCHAR(MAX)
@@ -44,27 +42,24 @@ AS
 		/**First with procedures that are stand alone/embedded hybrids, determine if we need to suppress output by 
   * populating the data for that variable 
   * --Dave Babler */
-		SELECT @bitSuppressVisualOutput = [Utility].[UTL].[fn_SuppressOutput]();
+		SELECT @bitSuppressVisualOutput = [UTL].[fn_SuppressOutput]();
 
 		--first blow apart the fully qualified object name
-		EXEC [Utility].[DD].[DBSchemaObjectAssignment] @ustrFQON
-													 , @ustrDatabaseName OUTPUT
-													 , @ustrSchemaName OUTPUT
-													 , @ustrTableOrObjName OUTPUT;
+		SET @ustrTableorObjName = PARSENAME(@ustrFQON, 1)
+        SET @ustrSchemaName = PARSENAME(@ustrFQON, 2)
 
 		/** Next Check to see if the name is for a view instead of a table, alter the function to fit your agency's naming conventions
 		 * Not necessary to check this beforehand as the previous calls will work for views and tables due to how
 		 * INFORMATION_SCHEMA is set up.  Unfortunately from this point on we'll be playing with Microsoft's sys tables
 		  */
-		SET @bitIsThisAView = [Utility].[DD].[fn_IsThisTheNameOfAView](@ustrTableOrObjName);
+		SET @bitIsThisAView = [DD].[fn_IsThisTheNameOfAView](@ustrTableOrObjName);
 
 		IF @bitIsThisAView = 0
 			SET @ustrViewOrTable = 'BASE TABLE';
 		ELSE
 			SET @ustrViewOrTable = 'VIEW';
 
-		EXEC [Utility].[DD].[TableExist] @ustrTableOrObjName
-									   , @ustrDatabaseName
+		EXEC [DD].[TableExist] @ustrTableOrObjName
 									   , @ustrSchemaName
 									   , @bitExistFlag OUTPUT
 									   , @ustrMessageOut OUTPUT;
@@ -77,8 +72,8 @@ AS
                         *If it does not  will ultimately ask someone to please create 
                         * the comment on the table -- Babler */
 			SET @dSQLCheckForComment = N' SELECT 1
-									FROM ' + QUOTENAME(@ustrDataBaseName) + '.sys.extended_properties'
-									   + ' WHERE [major_id] = OBJECT_ID(' + '''' + @ustrDatabaseName + '.'
+									FROM ' +  'sys.extended_properties'
+									   + ' WHERE [major_id] = OBJECT_ID(' + '''' + '.'
 									   + @ustrSchemaName + '.' + @ustrTableOrObjName + '''' + ')'
 									   + ' AND [name] = N''MS_Description''
 										AND [minor_id] = 0';
@@ -93,15 +88,12 @@ AS
 				SET @dSQLPullComment = N'
 								
 								SELECT   @ustrMessageOutTemp  = epExtendedProperty
-								FROM ' + QUOTENAME(@ustrDataBaseName)
-									   + '.INFORMATION_SCHEMA.TABLES AS t
+								FROM ' + 'INFORMATION_SCHEMA.TABLES AS t
 								INNER JOIN (
 									
-									SELECT OBJECT_NAME(ep.major_id, DB_ID(' + '''' + @ustrDataBaseName + ''''
-									   + ')) AS [epTableName]
+									SELECT OBJECT_NAME(ep.major_id) AS [epTableName]
 										, CAST(ep.Value AS NVARCHAR(320)) AS [epExtendedProperty]
-									FROM ' + QUOTENAME(@ustrDataBaseName)
-									   + '.sys.extended_properties ep
+									FROM ' + 'sys.extended_properties ep
 									WHERE ep.name = N''MS_Description'' 
 										AND ep.minor_id = 0 
 									
@@ -109,22 +101,18 @@ AS
 									ON t.TABLE_NAME = tp.epTableName
 								WHERE TABLE_TYPE = ' + '''' + @ustrViewOrTable + ''''
 									   + 'AND tp.epTableName = @ustrTableOrObjName
-									AND t.TABLE_CATALOG = @ustrDatabaseName
 									AND t.TABLE_SCHEMA = @ustrSchemaName';
 
 				PRINT @dSQLPullComment
 
-				SET @dSQLPullCommentParameters = N' @ustrDatabaseName NVARCHAR(64)
-				, @ustrSchemaName NVARCHAR(64)
+				SET @dSQLPullCommentParameters = N'@ustrSchemaName NVARCHAR(64)
 				, @ustrTableOrObjName NVARCHAR(64)
 				, @ustrMessageOutTemp NVARCHAR(320) OUTPUT';
 
 				EXECUTE sp_executesql @dSQLPullComment
-									, N' @ustrDatabaseName NVARCHAR(64)
-				, @ustrSchemaName NVARCHAR(64)
+									, N'@ustrSchemaName NVARCHAR(64)
 				, @ustrTableOrObjName NVARCHAR(64)
 				, @ustrMessageOutTemp NVARCHAR(320) OUTPUT'
-									, @ustrDatabaseName = @ustrDatabaseName
 									, @ustrSchemaName = @ustrSchemaName
 									, @ustrTableOrObjName = @ustrTableOrObjName
 									, @ustrMessageOutTemp = @ustrMessageOut OUTPUT;
@@ -137,7 +125,7 @@ AS
 			ELSE
 			BEGIN
 				SET @boolOptionalSuccessFlag = 0; --let any proc calling know that there is no table comments yet.
-				SET @ustrMessageOut = @ustrDataBaseName + '.' + @ustrSchemaName + '.' + @ustrTableOrObjName
+				SET @ustrMessageOut =   @ustrSchemaName + '.' + @ustrTableOrObjName
 									  + N' currently has no comments please DD.TableAddComment to add comments!';
 				SET @strOptionalMessageOut = @ustrMessageOut;
 			END
@@ -206,7 +194,7 @@ AS
 AS (
 	SELECT OBJECT_NAME(ep.major_id) AS [epTableName]
 		, ep.Value AS [epExtendedProperty]
-	FROM @ustDatabaseName.sys.extended_properties ep
+	FROM sys.extended_properties ep
 	WHERE ep.name = N'MS_Description' --sql serverabsurdly complex version of COMMENT
 		AND ep.minor_id = 0 --prevents showing column comments
 	)
@@ -216,7 +204,6 @@ INNER JOIN tp
 	ON t.TABLE_NAME = tp.epTableName
 WHERE TABLE_TYPE = N'BASE TABLE'
 	AND tp.epTableName = @ustrTableOrObjName
-	AND t.TABLE_CATALOG = @ustrDatabaseName
 	AND t.TABLE_SCHEMA = @ustrSchemaName;
 	 */
 	--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
