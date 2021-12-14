@@ -1,14 +1,13 @@
 
 GO
 -- ==========================================================================================
--- Author:			Dave Babler
--- Create date: 	2020-08-25
--- Last Edited By:	Dave Babler
--- Last Updated:	2021-12-03
--- Description:		This will either add or wipe and update the comments on a table
--- SubProcedures:	1.	[Utility].[DD].[fn_IsThisTheNameOfAView]
---					2.  [Utility].[DD].[TableExist]
--- TODO: 			Upon update add the old value to some sort of LogTable, along with the user doing it.
+-- Author:						Dave Babler
+-- Create date: 				2020-08-25
+-- Modified For Azure:			2021-12-03
+-- Description:					This will either add or wipe and update the comments on a table
+-- SubProcedures:				1.	[Utility].[DD].[fn_IsThisTheNameOfAView]
+--								2.  [Utility].[DD].[TableExist]
+-- TODO: 						Upon update add the old value to some sort of LogTable, along with the user doing it.
 -- ==========================================================================================
 CREATE OR ALTER PROCEDURE DD.TableAddComment
 	-- Add the parameters for the stored procedure here

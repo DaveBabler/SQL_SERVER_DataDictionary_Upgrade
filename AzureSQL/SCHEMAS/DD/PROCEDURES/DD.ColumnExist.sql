@@ -2,12 +2,12 @@
 GO
 
 -- ==========================================================================================
--- Author:		    Dave Babler
--- Create date:     08/25/2020
--- Last Modified:   12/02/2021
--- Description:	    Checks to see if column in table exists 
---                  use output Boolean for logic flow in other procedures
--- 					This will work just fine for Views without further modification.
+-- Author:		    	Dave Babler
+-- Create date:     	08/25/2020
+-- Modified for Azure:  12/02/2021
+-- Description:	    	Checks to see if column in table exists 
+--                  	use output Boolean for logic flow in other procedures
+-- 						This will work just fine for Views without further modification.
 -- ==========================================================================================
 CREATE
 	OR
@@ -88,6 +88,7 @@ BEGIN CATCH
 		, ERROR_MESSAGE()
 		, GETDATE()
 		);
+		THROW;
 END CATCH;
 
 

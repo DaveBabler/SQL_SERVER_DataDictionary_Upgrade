@@ -1,21 +1,11 @@
---update change ShowColumnComment to a more standardized noun then verb style
-DROP PROCEDURE IF EXISTS DD.ShowColumnComment
-
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
 -- ==========================================================================================
--- Author:			Dave Babler
--- Create date: 	2020-08-25
--- Last Edited By:	Dave Babler
--- Last Updated:	2021-04-24
--- Description:	    This procedure makes viewing comments on a single column much more accessible.
--- Subprocedures: 	1. [Utility].[UTL].[fn_SuppressOutput]
--- 					2. [Utility].[DD].[ColumnExist]
---  				3. [Utility].[DD].[fn_IsThisTheNameOfAView]
+-- Author:						Dave Babler
+-- Create date: 				2020-08-25
+-- Modified For Azure:			2021-04-24
+-- Description:	    			This procedure makes viewing comments on a single column much more accessible.
+-- Subprocedures: 				1. [Utility].[UTL].[fn_SuppressOutput]
+-- 								2. [Utility].[DD].[ColumnExist]
+--  							3. [Utility].[DD].[fn_IsThisTheNameOfAView]
 -- ==========================================================================================
 CREATE
 	OR

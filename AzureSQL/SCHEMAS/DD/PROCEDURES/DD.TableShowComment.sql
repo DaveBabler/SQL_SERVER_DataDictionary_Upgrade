@@ -1,18 +1,11 @@
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
 -- ==========================================================================================
--- Author:			Dave Babler
--- Create date: 	2020-08-25
--- Last Edited By:	Dave Babler
--- Last Updated:	2021-12-15
--- Description:		Checks to see if table comments exist
--- Subprocedures: 	1. [$(DatabaseName)].[UTL].[fn_SuppressOutput]
--- 					2. [$(DatabaseName)].[DD].[TableExist]
---  				3. [$(DatabaseName)].[DD].[fn_IsThisTheNameOfAView]
+-- Author:				Dave Babler
+-- Create date: 		2020-08-25
+-- Modifed for Azure:	2021-12-14
+-- Description:			Checks to see if table comments exist
+-- Subprocedures: 		1. [$(DatabaseName)].[UTL].[fn_SuppressOutput]
+-- 						2. [$(DatabaseName)].[DD].[TableExist]
+--  					3. [$(DatabaseName)].[DD].[fn_IsThisTheNameOfAView]
 -- ==========================================================================================
 
 CREATE OR ALTER PROCEDURE [DD].[TableShowComment]

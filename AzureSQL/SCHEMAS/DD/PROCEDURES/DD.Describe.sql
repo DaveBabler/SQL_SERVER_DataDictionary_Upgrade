@@ -6,13 +6,13 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 -- =============================================
--- Author:		    Dave Babler
--- Create date:     08/26/2020
--- Edited for AZ:   12/05/2021
--- Description:	    This recreates and improves upon Oracle's ANSI DESCRIBE table built in data dictionary proc
--- 				    This will default to the dbo schema unless specified within the input parameter.
--- Subprocedures:   1. DD.TableShowComment
--- 				    2. UTL_fn_DelimListToTable 
+-- Author:		        Dave Babler
+-- Create date:         08/26/2020
+-- Modifed for Azure:	2021-12-15
+-- Description:	        This recreates and improves upon Oracle's ANSI DESCRIBE table built in data dictionary proc
+-- 				        This will default to the dbo schema unless specified within the input parameter.
+-- Subprocedures:       1. DD.TableShowComment
+-- 				        2. UTL_fn_DelimListToTable 
 -- =============================================
 CREATE OR ALTER   PROCEDURE [DD].[Describe]
 	-- Add the parameters for the stored procedure here

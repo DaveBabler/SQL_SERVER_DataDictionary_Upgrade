@@ -4,7 +4,7 @@
 -- Edited for Azure: 2021-12-14
 -- Description:	Returns a table of recent edits to the server
 -- =============================================
-CREATE   VIEW [DD].[V_ObjectsEditedLast7Days]
+CREATE  OR ALTER   VIEW [DD].[V_ObjectsEditedLast7Days]
 AS
     SELECT  DB_NAME()              AS DBName
           , SCHEMA_NAME(schema_id) AS SchemaName
@@ -19,6 +19,7 @@ AS
    
         SELECT  *
         FROM    DD.V_ObjectsEditedLast7Days
+        ORDER BY DateModified DESC
 
 vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv   */
 

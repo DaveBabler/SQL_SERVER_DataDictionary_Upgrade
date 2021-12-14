@@ -1,17 +1,8 @@
-
-GO
-/****** Object:  StoredProcedure [DD].[TableExist]    Script Date: 4/28/2021 3:08:05 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-
 -- =============================================
--- Author:		    Dave Babler
--- Create date:     08/25/2020
--- Last Modified:   12/02/2021
--- Description:	    Checks to see if table exists use output boolean for logic flow in other procedures
+-- Author:		        Dave Babler
+-- Create date:         08/25/2020
+-- Modified for Azure:       12/02/2021
+-- Description:	        Checks to see if table exists use output boolean for logic flow in other procedures
 -- =============================================
 CREATE OR ALTER PROCEDURE [DD].[TableExist]
     @ustrTableName   NVARCHAR(64)
