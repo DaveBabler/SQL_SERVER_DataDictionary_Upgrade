@@ -13,7 +13,7 @@ GO
 -- 				have left it's name in the traditional fn_ convention.
 -- ==========================================================================================
 
-CREATE FUNCTION [DD].[fn_IsThisTheNameOfAView]
+CREATE OR ALTER FUNCTION [DD].[fn_IsThisTheNameOfAView]
 (
 	-- Add the parameters for the function here
 	@ustrName NVARCHAR(64)
@@ -45,8 +45,8 @@ BEGIN
 END
 GO
 
---^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--TESTING BLOCK--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/*
+/*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--TESTING BLOCK--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 		SELECT  CASE
 						WHEN [DD].[fn_IsThisTheNameOfAView]('vw_ThisisprobablyaViewItstartswithvw') = 1 THEN
 							'Yes it is a view'
@@ -54,5 +54,5 @@ GO
 							'It might not be, double check'
 					END AS "Is this A View";
 			GO
-    */
---vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+ 
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv   */

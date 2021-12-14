@@ -34,13 +34,7 @@ BEGIN TRY
 		N'
 	USE [?]
 	IF DB_Name() = ''Tempdb''BEGIN RETURN END
-	SELECT DB_NAME() AS DBName
-	, SCHEMA_NAME(schema_id) AS SchemaName
-	, so.name AS ObjectName
-	, type_desc AS DescriptiveObjectType
-	, modify_date AS DateModified
-FROM sys.all_objects so
-WHERE DATEDIFF(D, modify_date, GETDATE()) < 7'
+'
 		;
 
 	INSERT INTO #_ObjectsEdited (
@@ -50,7 +44,13 @@ WHERE DATEDIFF(D, modify_date, GETDATE()) < 7'
 		, DescriptiveObjectType
 		, DateModifed
 		)
-	EXEC sp_MSforeachdb @dSQLStatement
+	SELECT DB_NAME() AS DBName
+	, SCHEMA_NAME(schema_id) AS SchemaName
+	, so.name AS ObjectName
+	, type_desc AS DescriptiveObjectType
+	, modify_date AS DateModified
+FROM sys.all_objects so
+WHERE DATEDIFF(D, modify_date, GETDATE()) < 7;
 
 	SELECT *
 	INTO ##ObjectsEditedLast7Days
