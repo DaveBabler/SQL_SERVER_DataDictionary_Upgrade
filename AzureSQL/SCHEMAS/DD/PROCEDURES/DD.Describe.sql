@@ -6,16 +6,17 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 -- =============================================
--- Author:		Dave Babler
--- Create date: 08/26/2020
--- Description:	This recreates and improves upon Oracle's ANSI DESCRIBE table built in data dictionary proc
--- 				This will default to the dbo schema unless specified within the input parameter.
--- Subprocedures: 1. DD.TableShowComment
--- 				  2. UTL_fn_DelimListToTable  (already exists, used to have diff name)
+-- Author:		    Dave Babler
+-- Create date:     08/26/2020
+-- Edited for AZ:   12/05/2021
+-- Description:	    This recreates and improves upon Oracle's ANSI DESCRIBE table built in data dictionary proc
+-- 				    This will default to the dbo schema unless specified within the input parameter.
+-- Subprocedures:   1. DD.TableShowComment
+-- 				    2. UTL_fn_DelimListToTable 
 -- =============================================
-ALTER   PROCEDURE [DD].[Describe]
+CREATE OR ALTER   PROCEDURE [DD].[Describe]
 	-- Add the parameters for the stored procedure here
-	@str_input_TableName VARCHAR(200) 
+	@ustrFQON VARCHAR(200) 
 	 
 AS
 
@@ -26,7 +27,6 @@ DECLARE @strMessageOut NVARCHAR(320)
 	, @strTableSubComment NVARCHAR(80) --This will be an additional flag warning there is no actual table comment!
 	, @bitIsThisAView BIT
 	, @bitExistFlag BIT
-	, @ustrDatabaseName NVARCHAR(64)
 	, @ustrSchemaName NVARCHAR(64)
 	, @ustrTableorObjName NVARCHAR(64)
 	, @ustrViewOrTable NVARCHAR(8)
@@ -38,12 +38,16 @@ BEGIN TRY
 SET NOCOUNT ON;
 		DROP TABLE IF EXISTS ##DESCRIBE;  --for future output to temp tables ignore for now
 	/** First check to see if a schema was specified in the input paramater, schema.table, else default to dbo. -- Babler*/
-		EXEC DD.DBSchemaObjectAssignment @str_input_TableName
-			, @ustrDatabaseName OUTPUT
-			, @ustrSchemaName OUTPUT
-			, @ustrTableorObjName OUTPUT;
 
-
+        SET @ustrTableorObjName = PARSENAME(@ustrFQON, 1)
+        IF PARSENAME(@ustrFQON, 2) IS NOT NULL
+            BEGIN
+                SET @ustrSchemaName = PARSENAME(@ustrFQON, 2)
+            END
+        ELSE
+            BEGIN
+                SET @ustrSchemaName = 'dbo';
+            END
 
 			/**Check to see if the table exists, if it does not we will output an Error Message
         * however since we are not writing anything to the DD we won't go through the whole RAISEEROR 
@@ -53,7 +57,6 @@ SET NOCOUNT ON;
 
 
     EXEC DD.TableExist @ustrTableorObjName
-	, @ustrDatabaseName
 	, @ustrSchemaName
 	, @bitSuccessFlag OUTPUT
 	, @strMessageOut OUTPUT; 
@@ -65,7 +68,7 @@ SET NOCOUNT ON;
 		-- we want to suppress results (perhaps this could be proceduralized as well one to make the table one to kill?)
 		CREATE TABLE #__suppress_results (col1 INT);
 
-		EXEC DD.TableShowComment @str_input_TableName
+		EXEC DD.TableShowComment @ustrFQON
 			, @boolIsTableCommentSet OUTPUT
 			, @strTableComment OUTPUT;
 
@@ -85,20 +88,20 @@ SET NOCOUNT ON;
                             , pk_col.name AS PrimaryKeyColumnName
                             , delete_referential_action_desc AS ReferentialDeleteAction
                             , update_referential_action_desc AS ReferentialUpdateAction
-                        FROM ' + @ustrDatabaseName + '.sys.tables tab
-                        INNER JOIN ' + @ustrDatabaseName + '.sys.columns col
+                        FROM ' + 'sys.tables tab
+                        INNER JOIN ' + 'sys.columns col
                             ON col.object_id = tab.object_id
-                        LEFT JOIN ' + @ustrDatabaseName + '.sys.foreign_key_columns fk_cols
+                        LEFT JOIN ' + 'sys.foreign_key_columns fk_cols
                             ON fk_cols.parent_object_id = tab.object_id
                                 AND fk_cols.parent_column_id = col.column_id
-                        LEFT JOIN ' + @ustrDatabaseName + '.sys.foreign_keys fk
+                        LEFT JOIN ' + 'sys.foreign_keys fk
                             ON fk.object_id = fk_cols.constraint_object_id
-                        LEFT JOIN ' + @ustrDatabaseName + '.sys.tables pk_tab
+                        LEFT JOIN ' + 'sys.tables pk_tab
                             ON pk_tab.object_id = fk_cols.referenced_object_id
-                        LEFT JOIN ' + @ustrDatabaseName + '.sys.columns pk_col
+                        LEFT JOIN ' + 'sys.columns pk_col
                             ON pk_col.column_id = fk_cols.referenced_column_id
                             AND pk_col.object_id = fk_cols.referenced_object_id
-                        LEFT JOIN ' + @ustrDatabaseName +'.INFORMATION_SCHEMA.TABLES ist
+                        LEFT JOIN ' +'INFORMATION_SCHEMA.TABLES ist
                                 ON ist.TABLE_NAME = tab.name
                         WHERE fk.name IS NOT NULL
                             AND tab.name = @ustrTableName_d
@@ -111,13 +114,13 @@ SET NOCOUNT ON;
                             , o.name AS TABLE_NAME
                             , c.name AS COLUMN_NAME
                             , i.is_primary_key
-                        FROM ' + @ustrDatabaseName + '.sys.indexes AS i
-                        INNER JOIN ' + @ustrDatabaseName + '.sys.index_columns AS ic
+                        FROM ' + 'sys.indexes AS i
+                        INNER JOIN ' + 'sys.index_columns AS ic
                             ON i.object_id = ic.object_id
                                 AND i.index_id = ic.index_id
-                        INNER JOIN ' + @ustrDatabaseName + '.sys.objects AS o
+                        INNER JOIN ' + 'sys.objects AS o
                             ON i.object_id = o.object_id
-                        LEFT JOIN ' + @ustrDatabaseName + '.sys.columns AS c
+                        LEFT JOIN ' + 'sys.columns AS c
                             ON ic.object_id = c.object_id
                                 AND c.column_id = ic.column_id
                         WHERE i.is_primary_key = 1
@@ -129,14 +132,14 @@ SET NOCOUNT ON;
                             , IndexId = ind.index_id
                             , ColumnId = ic.index_column_id
                             , ColumnName = col.name
-                        FROM ' + @ustrDatabaseName + '.sys.indexes ind
-                        INNER JOIN ' + @ustrDatabaseName + '.sys.index_columns ic
+                        FROM ' + 'sys.indexes ind
+                        INNER JOIN ' + 'sys.index_columns ic
                             ON ind.object_id = ic.object_id
                                 AND ind.index_id = ic.index_id
-                        INNER JOIN ' + @ustrDatabaseName + '.sys.columns col
+                        INNER JOIN ' + 'sys.columns col
                             ON ic.object_id = col.object_id
                                 AND ic.column_id = col.column_id
-                        INNER JOIN ' + @ustrDatabaseName + '.sys.tables t
+                        INNER JOIN ' + 'sys.tables t
                             ON ind.object_id = t.object_id
                         WHERE ind.is_primary_key = 0
                             AND ind.is_unique = 0
@@ -187,12 +190,12 @@ SET NOCOUNT ON;
                         , s.value AS Description
                         , indexList.IndexesRowIsInvolvedIn
                     INTO ##DESCRIBE --GLOBAL TEMP 
-                    FROM ' + @ustrDatabaseName +'.INFORMATION_SCHEMA.COLUMNS AS col
+                    FROM ' +'INFORMATION_SCHEMA.COLUMNS AS col
                     LEFT JOIN pk
                         ON col.TABLE_NAME = pk.TABLE_NAME
                             AND col.TABLE_SCHEMA = pk.TABLE_SCHEMA
                             AND col.COLUMN_NAME = pk.COLUMN_NAME
-                    LEFT JOIN ' + @ustrDatabaseName + '.sys.extended_properties s
+                    LEFT JOIN ' + 'sys.extended_properties s
                         ON s.major_id = OBJECT_ID(col.TABLE_CATALOG + ''.'' + col.TABLE_SCHEMA + ''.'' + col.TABLE_NAME)
                             AND s.minor_id = col.ORDINAL_POSITION
                             AND s.name = ''MS_Description''
@@ -234,8 +237,7 @@ PRINT CAST(@dSQLBuildDescribe AS NTEXT);
     --SELECT CAST('<root><![CDATA[' + @dSQLBuildDescribe + ']]></root>' AS XML)
 
 
-	SET @dSQLParamaters = '@ustrDatabaseName_d NVARCHAR(64)
-, @ustrSchemaName_d NVARCHAR(64)
+	SET @dSQLParamaters = '@ustrSchemaName_d NVARCHAR(64)
 , @ustrTableName_d NVARCHAR(64)
 , @strTableSubComment_d VARCHAR(2000)
 , @strTableComment_d VARCHAR(2000)';
@@ -243,7 +245,6 @@ PRINT CAST(@dSQLBuildDescribe AS NTEXT);
 
 EXEC sp_executesql @dSQLBuildDescribe
 , @dSQLParamaters
-, @ustrDatabaseName_d = @ustrDatabaseName
 , @ustrSchemaName_d = @ustrSchemaName
 , @ustrTableName_d = @ustrTableorObjName
 , @strTableSubComment_d = @strTableSubComment
