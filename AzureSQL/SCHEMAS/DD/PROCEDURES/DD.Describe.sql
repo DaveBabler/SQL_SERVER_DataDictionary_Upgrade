@@ -167,7 +167,7 @@ SET NOCOUNT ON;
                                 ) AS RowNum
                         FROM indStart i2
                         )
-                    SELECT col.COLUMN_NAME AS ColumnName
+                    SELECT DISTINCT col.COLUMN_NAME AS ColumnName
                         , col.ORDINAL_POSITION AS OrdinalPosition
                         , col.DATA_TYPE AS DataType
                         , col.CHARACTER_MAXIMUM_LENGTH AS MaxLength
