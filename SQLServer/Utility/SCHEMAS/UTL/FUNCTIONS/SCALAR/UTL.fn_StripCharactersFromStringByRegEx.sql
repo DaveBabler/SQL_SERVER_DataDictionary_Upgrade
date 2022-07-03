@@ -13,7 +13,7 @@ REFERENCE:		This was lightly modfied from the solution provided here:
 				https://stackoverflow.com/questions/1007697/how-to-strip-all-non-alphabetic-characters-from-string-in-sql-server
 ==========================================================================
 */
-CREATE FUNCTION UTL.fn_StripCharactersFromStringByRegEx 
+CREATE OR ALTER FUNCTION UTL.fn_StripCharactersFromStringByRegEx 
 (
 	-- Add the parameters for the function here
 	@ustrToClean NVARCHAR(MAX)

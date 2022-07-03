@@ -19,7 +19,7 @@ GO
 	REFERENCE:		https://devblogs.microsoft.com/oldnewthing/20120523-00/?p=7553#:~:text=The%20GUID%20generation%20algorithm%20was,for%20randomness%20or%20for%20unpredictability.&text=Definitely%20not%20random.
     ==========================================================================================
 */
-ALTER FUNCTION DUTIL.fn_RandomizeUsernameOfEmailAddress
+CREATE OR ALTER FUNCTION DUTIL.fn_RandomizeUsernameOfEmailAddress
 (
     -- Add the parameters for the function here
     @nstrEmailAddress NVARCHAR(2000)
