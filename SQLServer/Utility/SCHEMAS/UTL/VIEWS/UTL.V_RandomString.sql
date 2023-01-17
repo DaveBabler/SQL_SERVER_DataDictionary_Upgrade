@@ -1,6 +1,3 @@
-USE [Utility];
-GO
-
 /****** Object:  View [UTL].[V_RandomString]    Script Date: 1/30/2022 2:43:05 PM ******/
 SET ANSI_NULLS ON;
 GO

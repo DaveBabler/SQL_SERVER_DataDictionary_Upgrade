@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32228.343
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "AzureDDErr", "AzureDDErr.sqlproj", "{F93E79D1-2624-406B-A78F-DD98A6CEB6FB}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "OnPrem-Utility", "..\OnPrem\Utility\Database1\OnPrem-Utility.sqlproj", "{5808EF42-C76B-4EC3-887F-A33468F38315}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "OnPrem-CustomLog", "..\OnPrem\CustomLog\OnPrem-CustomLog\OnPrem-CustomLog.sqlproj", "{9D3D98D9-0E9E-4A6C-AE18-BD588933EAAB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F93E79D1-2624-406B-A78F-DD98A6CEB6FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F93E79D1-2624-406B-A78F-DD98A6CEB6FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F93E79D1-2624-406B-A78F-DD98A6CEB6FB}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{F93E79D1-2624-406B-A78F-DD98A6CEB6FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F93E79D1-2624-406B-A78F-DD98A6CEB6FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F93E79D1-2624-406B-A78F-DD98A6CEB6FB}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{5808EF42-C76B-4EC3-887F-A33468F38315}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5808EF42-C76B-4EC3-887F-A33468F38315}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5808EF42-C76B-4EC3-887F-A33468F38315}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{5808EF42-C76B-4EC3-887F-A33468F38315}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5808EF42-C76B-4EC3-887F-A33468F38315}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5808EF42-C76B-4EC3-887F-A33468F38315}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{9D3D98D9-0E9E-4A6C-AE18-BD588933EAAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D3D98D9-0E9E-4A6C-AE18-BD588933EAAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D3D98D9-0E9E-4A6C-AE18-BD588933EAAB}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{9D3D98D9-0E9E-4A6C-AE18-BD588933EAAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D3D98D9-0E9E-4A6C-AE18-BD588933EAAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D3D98D9-0E9E-4A6C-AE18-BD588933EAAB}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B7669CF6-1242-4B77-BF3A-5C3F9361B7EB}
+	EndGlobalSection
+EndGlobal
